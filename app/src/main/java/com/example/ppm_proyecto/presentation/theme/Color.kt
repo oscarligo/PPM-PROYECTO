@@ -1,4 +1,4 @@
-package com.example.ppm_proyecto.ui.theme
+package com.example.ppm_proyecto.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
