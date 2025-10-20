@@ -1,5 +1,7 @@
 package com.example.ppm_proyecto.presentation.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -39,6 +41,7 @@ fun AppNavigation(userRole: String) {
     val backStack = remember { mutableStateListOf<AppDestination>(startScreen) } // Backstack
 
     fun navigate(to: AppDestination) { backStack.add(to) }
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     fun back() { if (backStack.size > 1) backStack.removeLast() }
 
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
