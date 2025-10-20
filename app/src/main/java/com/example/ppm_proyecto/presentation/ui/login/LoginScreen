@@ -1,0 +1,117 @@
+package com.example.asistencia.ui.screens
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+
+@Composable
+fun LoginScreen(navController: NavController) {
+    // Estados para los campos de texto
+    var usuario by remember { mutableStateOf("") }
+    var contrasena by remember { mutableStateOf("") }
+    var mensajeError by remember { mutableStateOf("") }
+
+    // Contenedor principal
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Nombre de la aplicación
+        Text(
+            text = "Registro de Asistencia",
+            fontSize = 28.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(bottom = 40.dp)
+        )
+
+        // Campo de usuario
+        OutlinedTextField(
+            value = usuario,
+            onValueChange = { usuario = it },
+            label = { Text("Usuario") },
+            singleLine = true,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        )
+
+        // Campo de contraseña
+        OutlinedTextField(
+            value = contrasena,
+            onValueChange = { contrasena = it },
+            label = { Text("Contraseña") },
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        )
+
+        // Mensaje de error (por ahora no funcional)
+        if (mensajeError.isNotEmpty()) {
+            Text(
+                text = mensajeError,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+
+        // Botón para inciar sesión 
+        Button(
+            onClick = {
+                // Aquí se conectara con la base de datos 
+                // if (validarUsuario(usuario, contraseña)) {
+                //     navController.navigate("home")
+                // } else {
+                //     mensajeError = "Usuario o contraseña incorrectos"
+                // }
+
+                //En un futuro para ver si es estudiante o maestro 
+                  /*
+                  val usuarioEncontrado = validarUsuario(usuario, contrasena)
+            
+                  if (usuarioEncontrado != null) {
+                      when (usuarioEncontrado.tipo) {
+                          "profesor" -> navController.navigate("home_profesor")
+                          "estudiante" -> navController.navigate("home_estudiante")
+                          else -> mensajeError = "Tipo de usuario no reconocido"
+                      }
+                  } else {
+                      mensajeError = "Usuario o contraseña incorrectos"
+                  }
+                  */
+
+                // Por ahora, va al home de uno 
+                navController.navigate("home_teacher")
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp)
+        ) {
+            Text("Iniciar sesión")
+        }
+
+        // Botón secundario
+        TextButton(
+            onClick = {
+                navController.navigate("register")
+            },
+            modifier = Modifier.padding(top = 16.dp)
+        ) {
+            Text("¿No tienes una cuenta? Crea una.")
+        }
+    }
+}
