@@ -14,8 +14,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 @Composable
-fun LoginScreen(navController: NavController) {
-    // Estados para los campos de texto
+fun LoginScreen(navigate: (AppDestination) -> Unit) {
     var usuario by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
     var mensajeError by remember { mutableStateOf("") }
@@ -95,7 +94,7 @@ fun LoginScreen(navController: NavController) {
                   */
 
                 // Por ahora, va al home de uno 
-                navController.navigate("home_teacher")
+                navController.navigate(StudentHomeScreen)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -107,7 +106,8 @@ fun LoginScreen(navController: NavController) {
         // Botón secundario
         TextButton(
             onClick = {
-                navController.navigate("register")
+                //Poner key en el NavDisplay para que funcione 
+                navController.navigate(navigate(Register))
             },
             modifier = Modifier.padding(top = 16.dp)
         ) {
