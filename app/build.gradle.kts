@@ -61,4 +61,11 @@ dependencies {
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.navigation3.runtime)
 
+    // ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
+
+    //AsyncImage
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
+
 }

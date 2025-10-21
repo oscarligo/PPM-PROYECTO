@@ -9,9 +9,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
+import com.example.ppm_proyecto.presentation.navigation.routes.AppDestination
 
 @Composable
 fun LoginScreen(navigate: (AppDestination) -> Unit) {
@@ -94,7 +95,7 @@ fun LoginScreen(navigate: (AppDestination) -> Unit) {
                   */
 
                 // Por ahora, va al home de uno 
-                navController.navigate(StudentHomeScreen)
+//                navController.navigate(StudentHomeScreen)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -107,11 +108,18 @@ fun LoginScreen(navigate: (AppDestination) -> Unit) {
         TextButton(
             onClick = {
                 //Poner key en el NavDisplay para que funcione 
-                navController.navigate(navigate(Register))
+//                navController.navigate(navigate(Register))
             },
             modifier = Modifier.padding(top = 16.dp)
         ) {
             Text("¿No tienes una cuenta? Crea una.")
         }
     }
+}
+
+
+@Preview
+@Composable
+fun LoginScreenPreview() {
+    LoginScreen(navigate = {})
 }

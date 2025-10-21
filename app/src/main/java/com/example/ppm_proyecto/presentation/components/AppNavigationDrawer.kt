@@ -27,6 +27,7 @@ Al presionar un botón, navega Y cierra el drawer automáticamente.
 fun AppNavigationDrawerPreview() {
     PPMPROYECTOTheme {
         AppNavigationDrawer(
+            drawerState = DrawerState(DrawerValue.Open),
             onNavigateToProfile = {},
             onNavigateToSecurity = {},
             onNavigateToAppearance = {},
@@ -38,6 +39,7 @@ fun AppNavigationDrawerPreview() {
 
 @Composable
 fun AppNavigationDrawer(
+    drawerState: DrawerState,
     onNavigateToProfile: () -> Unit,      // Navega a Profile
     onNavigateToSecurity: () -> Unit,     // Navega a SecuritySettings
     onNavigateToAppearance: () -> Unit,   // Navega a AppearanceSettings
@@ -45,6 +47,7 @@ fun AppNavigationDrawer(
     modifier: Modifier = Modifier
 ) {
     ModalDrawerSheet(
+        drawerState = drawerState,
         modifier = modifier.width(280.dp),
         drawerContainerColor = MaterialTheme.colorScheme.surface
     ) {

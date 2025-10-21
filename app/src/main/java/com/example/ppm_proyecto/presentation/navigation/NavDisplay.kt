@@ -20,6 +20,7 @@ import com.example.ppm_proyecto.presentation.navigation.routes.Register
 import com.example.ppm_proyecto.presentation.navigation.routes.SecuritySettings
 import com.example.ppm_proyecto.presentation.navigation.routes.StudentHome
 import com.example.ppm_proyecto.presentation.navigation.routes.TeacherHome
+import com.example.ppm_proyecto.presentation.ui.home.student.StudentHomeScreen
 
 
 /*=======================================================================
@@ -51,10 +52,10 @@ fun AppNavigation(userRole: String) {
             onBack = { back() },
             entryProvider = { key ->
                 when (key) {
-                    is Login -> NavEntry(key) { /* LoginScreen */ }
+                    is Login -> NavEntry(key) { /* LoginScreen.kt */ }
                     is Register -> NavEntry(key) { /* RegisterScreen */ }
-                    is StudentHome -> NavEntry(key) { /* StudentHomeScreen */ }
-                    is TeacherHome -> NavEntry(key) { /* TeacherHomeScreen */ }
+                    is StudentHome -> NavEntry(key) { StudentHomeScreen { dest -> navigate(dest) } }
+                    is TeacherHome -> NavEntry(key) { /* TeacherHomeScreen.kt */ }
                     is CourseDetails -> NavEntry(key) { /* CourseDetailsScreen */ }
                     is Profile -> NavEntry(key) { /* ProfileScreen */ }
                     is SecuritySettings -> NavEntry(key) { /* SecuritySettingsScreen */ }

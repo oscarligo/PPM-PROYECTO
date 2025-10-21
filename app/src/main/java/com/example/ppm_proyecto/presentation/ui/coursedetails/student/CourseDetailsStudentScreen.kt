@@ -44,6 +44,7 @@ fun CourseDetailsStudentScreen(
         drawerState = drawerState,
         drawerContent = {
             AppNavigationDrawer(
+                drawerState = drawerState,
                 onNavigateToProfile = { onNavigate(Profile) },
                 onNavigateToSecurity = { onNavigate(SecuritySettings) },
                 onNavigateToAppearance = { onNavigate(AppearanceSettings) },

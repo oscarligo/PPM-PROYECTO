@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ppm_proyecto.R
@@ -39,12 +40,12 @@ fun TeacherHomeScreen(navigate: (AppDestination) -> Unit) {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Header
-        Header(
-            nombreUsuario = nombreMaestro,
-            navigate = navigate,
-            onNavMenuClick = { /* Barra lateral */ } //Modificar para la navegación
-        )
+//        // Header
+//        Header(
+//            nombreUsuario = nombreMaestro,
+//            navigate = navigate,
+//            onNavMenuClick = { /* Barra lateral */ } //Modificar para la navegación
+//        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -123,4 +124,12 @@ fun CardCurso(nombreCurso: String) {
         )
     }
 }
+
+
+@Preview
+@Composable
+fun TeacherHomeScreenPreview() {
+    TeacherHomeScreen(navigate = {})
+}
+
 
