@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ppm_proyecto.R
 import com.example.ppm_proyecto.presentation.navigation.routes.*
+import com.example.ppm_proyecto.presentation.theme.PPMPROYECTOTheme
 
 @Composable
 fun TeacherHomeScreen(navigate: (AppDestination) -> Unit) {
@@ -40,7 +41,7 @@ fun TeacherHomeScreen(navigate: (AppDestination) -> Unit) {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-//        // Header
+//         Header
 //        Header(
 //            nombreUsuario = nombreMaestro,
 //            navigate = navigate,
@@ -106,6 +107,7 @@ fun TeacherHomeScreen(navigate: (AppDestination) -> Unit) {
 //Para la Card de cada curso
 @Composable
 fun CardCurso(nombreCurso: String) {
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -129,7 +131,8 @@ fun CardCurso(nombreCurso: String) {
 @Preview
 @Composable
 fun TeacherHomeScreenPreview() {
+PPMPROYECTOTheme {
     TeacherHomeScreen(navigate = {})
 }
-
+}
 
