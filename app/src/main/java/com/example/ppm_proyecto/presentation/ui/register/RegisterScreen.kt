@@ -35,10 +35,6 @@ fun RegisterScreenPreview() {
     }
 }
 
-//PPMPROYECTOTheme {
-
-
-
 
 
 @Composable

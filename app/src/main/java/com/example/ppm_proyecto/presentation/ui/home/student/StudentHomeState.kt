@@ -1,8 +1,10 @@
 package com.example.ppm_proyecto.presentation.ui.home.student
 
-import com.example.ppm_proyecto.domain.model.Course
-import com.example.ppm_proyecto.domain.model.Notification
-import com.example.ppm_proyecto.domain.model.User
+import androidx.compose.material3.DrawerState
+import com.example.ppm_proyecto.domain.models.course.Course
+import com.example.ppm_proyecto.domain.models.user.Notification
+import com.example.ppm_proyecto.domain.models.user.User
+import androidx.compose.material3.DrawerValue
 
 
 data class StudentHomeState(
@@ -16,7 +18,7 @@ data class StudentHomeState(
     val isLoading: Boolean = false, // Indicador de carga
     val error: String = "", // Mensaje de error si ocurre alguno
     val selectedNotification: String? = null, // ID de la notificación seleccionada
-    val isDrawerOpen: Boolean = false, // Estado del drawer lateral de lo ajustes.
+    val isDrawerOpen: DrawerState = DrawerState(DrawerValue.Closed), // Estado del cajón de navegación
 
     // Estadísticas de asistencia
     val

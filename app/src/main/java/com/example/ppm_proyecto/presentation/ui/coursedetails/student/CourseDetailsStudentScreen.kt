@@ -22,8 +22,8 @@ import androidx.compose.ui.unit.dp
 import com.example.ppm_proyecto.R
 import com.example.ppm_proyecto.data.local.sample.sampleAttendance
 import com.example.ppm_proyecto.data.local.sample.sampleStudent
-import com.example.ppm_proyecto.domain.model.AttendanceRecord
-import com.example.ppm_proyecto.domain.model.AttendanceStatus
+import com.example.ppm_proyecto.domain.models.course.AttendanceRecord
+import com.example.ppm_proyecto.domain.models.course.AttendanceStatus
 import com.example.ppm_proyecto.presentation.components.AppNavigationDrawer
 import com.example.ppm_proyecto.presentation.navigation.routes.AppDestination
 import com.example.ppm_proyecto.presentation.navigation.routes.AppearanceSettings

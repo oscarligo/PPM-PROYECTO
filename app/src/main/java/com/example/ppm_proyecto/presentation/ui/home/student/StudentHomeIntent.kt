@@ -13,10 +13,7 @@ sealed interface StudentHomeIntent {
     data object OpenSecuritySettings: StudentHomeIntent // Navegar a la configuración de seguridad
     data object OpenAppearanceSettings: StudentHomeIntent // Navegar a la configuración de apariencia
     data class ViewNotification(val notificationId: String) : StudentHomeIntent // Ver una notificación específica
-
     data object ToggleDrawer: StudentHomeIntent // Abrir o cerrar el drawer lateral
-
     data object CloseDrawer: StudentHomeIntent // Cerrar el drawer lateral
 
-    data class SelectCourse(val courseId: String?): StudentHomeIntent //
 }

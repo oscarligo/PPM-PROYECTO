@@ -14,24 +14,20 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.DrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.ppm_proyecto.domain.models.course.Course
+import com.example.ppm_proyecto.domain.models.user.Notification
 import com.example.ppm_proyecto.presentation.components.AppNavigationDrawer
 import com.example.ppm_proyecto.presentation.components.HomeTopBar
 import com.example.ppm_proyecto.presentation.components.StatisticsCard
 import com.example.ppm_proyecto.presentation.navigation.routes.AppDestination
-import kotlinx.coroutines.flow.collectLatest
 
 
 /*============================================
@@ -44,27 +40,11 @@ fun StudentHomeScreen(
 ) {
     val state by viewModel.state.collectAsState()
 
-    val drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-
-    // Sincroniza el estado del ViewModel con el Drawer real
-    LaunchedEffect(state.isDrawerOpen) {
-        if (state.isDrawerOpen) drawerState.open() else drawerState.close()
-    }
-
-    // Sincroniza cierre por gesto con el ViewModel
-    LaunchedEffect(drawerState) {
-        snapshotFlow { drawerState.isOpen }.collectLatest { isOpen ->
-            if (!isOpen && state.isDrawerOpen) {
-                viewModel.onIntent(StudentHomeIntent.CloseDrawer, onNavigate)
-            }
-        }
-    }
-
     ModalNavigationDrawer(
-        drawerState = drawerState,
+        drawerState = state.isDrawerOpen,
         drawerContent = {
             AppNavigationDrawer(
-                drawerState = drawerState,
+                drawerState = state.isDrawerOpen,
                 onNavigateToProfile = { viewModel.onIntent(StudentHomeIntent.OpenProfile, onNavigate) },
                 onNavigateToSecurity = { viewModel.onIntent(StudentHomeIntent.OpenSecuritySettings, onNavigate) },
                 onNavigateToAppearance = { viewModel.onIntent(StudentHomeIntent.OpenAppearanceSettings, onNavigate) },
@@ -92,12 +72,12 @@ fun StudentHomeScreen(
                     )
             ) {
 
-                // Seccion: Estadísticas de asistencia
+ 
 
                 StatisticsCard(
-                    title = "Estadísticas de asistencia",
+                    title = "Estadísticas de Asistencia",
                     isLoading = state.isLoading,
-                    errorMessage = state.error.takeIf { it.isNotBlank() },
+                    errorMessage = state.error,
                     presentCount = state.presentCount,
                     absentCount = state.absentCount,
                     lateCount = state.lateCount,
@@ -108,41 +88,92 @@ fun StudentHomeScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Sección: Cursos asignados
-
-                Text(
-                    text = "Mis cursos",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                )
-
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                ) {
-                    items(state.courses) { course ->
-                        ElevatedCard(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 6.dp)
-                                .clickable { viewModel.onIntent(StudentHomeIntent.SeeCourseDetails(course.id), onNavigate) }
-                        ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text(text = course.name, style = MaterialTheme.typography.titleSmall)
-                                if (course.description.isNotBlank()) {
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(text = course.description, style = MaterialTheme.typography.bodySmall)
-                                }
-                            }
-                        }
-                        HorizontalDivider()
-                    }
+                // Sección: Notificaciones
+                NotificationsList(state.notifications) { notificationId ->
+                    viewModel.onIntent(StudentHomeIntent.ViewNotification(notificationId), onNavigate)
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Sección: Cursos asignados
+                CoursesList(state.courses)
             }
         }
     }
+}
 
+@Composable
+fun NotificationsList(
+    notifications: List<Notification>,
+    onClick: (String) -> Unit,
+) {
+    if (notifications.isNotEmpty()) {
+        Text(
+            text = "Notificaciones",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        ) {
+            items(notifications) { noti ->
+                ElevatedCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp)
+                        .clickable { onClick(noti.id) }
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(text = noti.title, style = MaterialTheme.typography.titleSmall)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(text = noti.message, style = MaterialTheme.typography.bodySmall)
+                        if (noti.date.isNotBlank()) {
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(text = noti.date, style = MaterialTheme.typography.labelSmall)
+                        }
+                    }
+                }
+                HorizontalDivider()
+            }
+        }
+    }
+}
+
+@Composable
+fun CoursesList (
+    List : List<Course>
+) {
+    Text(
+        text = "Mis cursos",
+        style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+    )
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    ) {
+        items(List) { course ->
+            ElevatedCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = course.name, style = MaterialTheme.typography.titleSmall)
+                    if (course.description.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(text = course.description, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
+            HorizontalDivider()
+        }
+    }
 }
 
 @Preview

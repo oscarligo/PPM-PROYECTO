@@ -19,8 +19,6 @@ import androidx.compose.ui.unit.dp
 import com.example.ppm_proyecto.presentation.components.charts.BarChart
 import com.example.ppm_proyecto.presentation.components.charts.PieChart
 import androidx.compose.material3.CardDefaults
-// theme
-import com.example.ppm_proyecto.presentation.theme.PPMPROYECTOTheme
 
 @Composable
 fun StatisticsCard(
@@ -61,7 +59,7 @@ fun StatisticsCard(
                         CircularProgressIndicator()
                     }
                 }
-                errorMessage != null -> {
+                !errorMessage.isNullOrBlank() -> {
                     Text(
                         text = errorMessage,
                         color = MaterialTheme.colorScheme.error,
