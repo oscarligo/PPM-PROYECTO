@@ -1,8 +1,7 @@
-package com.example.ppm_proyecto
+package com.example.ppm_proyecto.core.di
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class PPMApp : Application()
-
+class AttendanceAPP : Application()

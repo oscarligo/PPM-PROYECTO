@@ -8,8 +8,6 @@ import androidx.compose.material3.DrawerValue
 
 
 data class StudentHomeState(
-
-
     // Interfaz de Usuario
     val user: User? = null, // Usuario con sesión iniciada
     val userName: String = "", // Nombre del usuario
@@ -21,8 +19,7 @@ data class StudentHomeState(
     val isDrawerOpen: DrawerState = DrawerState(DrawerValue.Closed), // Estado del cajón de navegación
 
     // Estadísticas de asistencia
-    val
-    presentCount: Int = 0,
+    val presentCount: Int = 0,
     val absentCount: Int = 0,
     val lateCount: Int = 0,
 

@@ -28,6 +28,8 @@ import com.example.ppm_proyecto.presentation.components.AppNavigationDrawer
 import com.example.ppm_proyecto.presentation.components.HomeTopBar
 import com.example.ppm_proyecto.presentation.components.StatisticsCard
 import com.example.ppm_proyecto.presentation.navigation.routes.AppDestination
+// timestamp
+import com.google.firebase.Timestamp
 
 
 /*============================================
@@ -72,7 +74,7 @@ fun StudentHomeScreen(
                     )
             ) {
 
- 
+
 
                 StatisticsCard(
                     title = "Estadísticas de Asistencia",
@@ -127,13 +129,11 @@ fun NotificationsList(
                         .clickable { onClick(noti.id) }
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
+                        Text(text = noti.date., style = MaterialTheme.typography.bodySmall)
                         Text(text = noti.title, style = MaterialTheme.typography.titleSmall)
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(text = noti.message, style = MaterialTheme.typography.bodySmall)
-                        if (noti.date.isNotBlank()) {
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(text = noti.date, style = MaterialTheme.typography.labelSmall)
-                        }
+
                     }
                 }
                 HorizontalDivider()

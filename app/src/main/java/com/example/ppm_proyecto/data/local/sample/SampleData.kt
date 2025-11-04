@@ -2,26 +2,24 @@ package com.example.ppm_proyecto.data.local.sample
 
 import com.example.ppm_proyecto.domain.models.course.AttendanceRecord
 import com.example.ppm_proyecto.domain.models.course.AttendanceStatus
-import com.example.ppm_proyecto.domain.models.course.Course
+import com.example.ppm_proyecto.domain.models.user.User
+import com.example.ppm_proyecto.domain.models.user.UserRole
 
-data class SampleStudent(
-    val name: String,
-    val profileImageUrl: String // En un futuro, podrías usar una URL real
-)
+// Datos de ejemplo para la UI (usando modelos del dominio)
 
-// --- Datos de ejemplo para la UI ---
-
-val sampleStudent = SampleStudent(
+val sampleStudent = User(
+    id = "stu-0",
     name = "USUARIO",
+    email = "usuario@example.com",
+    role = UserRole.Student,
     profileImageUrl = ""
 )
 
 val sampleAttendance = listOf(
-    AttendanceRecord("24 de Julio, 2024", AttendanceStatus.Presente),
-    AttendanceRecord("22 de Julio, 2024", AttendanceStatus.Presente),
-    AttendanceRecord("20 de Julio, 2024", AttendanceStatus.Ausente),
-    AttendanceRecord("17 de Julio, 2024", AttendanceStatus.Tarde),
-    AttendanceRecord("15 de Julio, 2024", AttendanceStatus.Presente),
-    AttendanceRecord("13 de Julio, 2024", AttendanceStatus.Presente),
+    AttendanceRecord("2024-07-24", AttendanceStatus.Present),
+    AttendanceRecord("2024-07-22", AttendanceStatus.Present),
+    AttendanceRecord("2024-07-20", AttendanceStatus.Absent),
+    AttendanceRecord("2024-07-17", AttendanceStatus.Late),
+    AttendanceRecord("2024-07-15", AttendanceStatus.Present),
+    AttendanceRecord("2024-07-13", AttendanceStatus.Present),
 )
-

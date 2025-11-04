@@ -162,14 +162,14 @@ fun StatItem(color: Color, label: String, value: String) {
 @Composable
 fun AttendanceCard(record: AttendanceRecord) {
     val backgroundColor = when (record.status) {
-        AttendanceStatus.Presente -> StatusPresentGreen
-        AttendanceStatus.Ausente -> StatusAbsentRed
-        AttendanceStatus.Tarde -> StatusWarningYellow
+        AttendanceStatus.Present -> StatusPresentGreen
+        AttendanceStatus.Absent -> StatusAbsentRed
+        AttendanceStatus.Late -> StatusWarningYellow
     }
     val contentColor = when (record.status) {
-        AttendanceStatus.Presente -> StatusPresentGreenText
-        AttendanceStatus.Ausente -> StatusAbsentRedText
-        AttendanceStatus.Tarde -> StatusWarningYellowText
+        AttendanceStatus.Present -> StatusPresentGreenText
+        AttendanceStatus.Absent -> StatusAbsentRedText
+        AttendanceStatus.Late -> StatusWarningYellowText
     }
 
     Card(
