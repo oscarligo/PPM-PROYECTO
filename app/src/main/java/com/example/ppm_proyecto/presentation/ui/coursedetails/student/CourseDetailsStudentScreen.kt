@@ -22,8 +22,8 @@ import androidx.compose.ui.unit.dp
 import com.example.ppm_proyecto.R
 import com.example.ppm_proyecto.data.local.sample.sampleAttendance
 import com.example.ppm_proyecto.data.local.sample.sampleStudent
-import com.example.ppm_proyecto.domain.model.AttendanceRecord
-import com.example.ppm_proyecto.domain.model.AttendanceStatus
+import com.example.ppm_proyecto.domain.models.course.AttendanceRecord
+import com.example.ppm_proyecto.domain.models.course.AttendanceStatus
 import com.example.ppm_proyecto.presentation.components.AppNavigationDrawer
 import com.example.ppm_proyecto.presentation.navigation.routes.AppDestination
 import com.example.ppm_proyecto.presentation.navigation.routes.AppearanceSettings
@@ -162,14 +162,14 @@ fun StatItem(color: Color, label: String, value: String) {
 @Composable
 fun AttendanceCard(record: AttendanceRecord) {
     val backgroundColor = when (record.status) {
-        AttendanceStatus.Presente -> StatusPresentGreen
-        AttendanceStatus.Ausente -> StatusAbsentRed
-        AttendanceStatus.Tarde -> StatusWarningYellow
+        AttendanceStatus.Present -> StatusPresentGreen
+        AttendanceStatus.Absent -> StatusAbsentRed
+        AttendanceStatus.Late -> StatusWarningYellow
     }
     val contentColor = when (record.status) {
-        AttendanceStatus.Presente -> StatusPresentGreenText
-        AttendanceStatus.Ausente -> StatusAbsentRedText
-        AttendanceStatus.Tarde -> StatusWarningYellowText
+        AttendanceStatus.Present -> StatusPresentGreenText
+        AttendanceStatus.Absent -> StatusAbsentRedText
+        AttendanceStatus.Late -> StatusWarningYellowText
     }
 
     Card(

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,8 +18,6 @@ import androidx.compose.ui.unit.dp
 import com.example.ppm_proyecto.presentation.components.charts.BarChart
 import com.example.ppm_proyecto.presentation.components.charts.PieChart
 import androidx.compose.material3.CardDefaults
-// theme
-import com.example.ppm_proyecto.presentation.theme.PPMPROYECTOTheme
 
 @Composable
 fun StatisticsCard(
@@ -28,86 +25,76 @@ fun StatisticsCard(
     absentCount: Int,
     lateCount: Int,
     attendancePercent: Int,
-    barItems: List<Pair<String, Float>>,
-    modifier: Modifier = Modifier,
     title: String,
-    isLoading: Boolean = false,
-    errorMessage: String? = null,
+    modifier: Modifier = Modifier,
 ) {
     ElevatedCard(
-        modifier = modifier
-            .fillMaxWidth(),
-        colors =
-            CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            )
-
-
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+
+            // Título de la tarjeta
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(title, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium
+                )
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            when {
-                isLoading -> {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                        CircularProgressIndicator()
-                    }
-                }
-                errorMessage != null -> {
-                    Text(
-                        text = errorMessage,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium
+            val centerLabel = "$attendancePercent%"
+
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "Asistencia general",
+                    style = MaterialTheme.typography.titleSmall
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    // Gráfico circular (izquierda)
+                    PieChart(
+                        absence = absentCount,
+                        presence = presentCount,
+                        late = lateCount,
+                        centerText = centerLabel,
+                        modifier = Modifier.weight(1f)
                     )
-                }
-                else -> {
-                    val centerLabel = "${attendancePercent}%"
 
+                    // Gráfico de barras (derecha)
                     Column(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("Asistencia general", style = MaterialTheme.typography.titleSmall)
-
-                        Row(
+                        Spacer(modifier = Modifier.height(35.dp))
+                        BarChart(
+                            presentCount = presentCount,
+                            absentCount = absentCount,
+                            lateCount = lateCount,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        ) {
-                            // Pie a la izquierda
-                            PieChart(
-                                absence = absentCount,
-                                presence = presentCount,
-                                late = lateCount,
-                                centerText = centerLabel,
-                                modifier = Modifier
-                                    .weight(1f)
-                            )
-
-                            // Barras a la derecha
-                            Column (
-                                modifier = Modifier.weight(1f),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Spacer (modifier = Modifier.height(35.dp))
-                                BarChart(items = barItems)
-                            }
-                        }
+                                .height(150.dp)
+                        )
                     }
                 }
             }
         }
     }
 }
+
 
 @Preview
 @Composable
@@ -119,11 +106,7 @@ fun StatisticsCardPreview() {
         lateCount = 3,
         title = "Estadísticas de asistencia",
         attendancePercent = 65,
-        barItems = listOf(
-            "Ausente" to 8f,
-            "Tarde" to 3f,
-            "Presente" to 15f
-        )
+
     )
 
 }

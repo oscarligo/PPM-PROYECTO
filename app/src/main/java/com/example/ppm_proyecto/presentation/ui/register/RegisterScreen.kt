@@ -24,34 +24,17 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.ppm_proyecto.presentation.navigation.routes.AppDestination
 import com.example.ppm_proyecto.presentation.theme.PPMPROYECTOTheme
-
-
-@Preview
-@Composable
-fun RegisterScreenPreview() {
-    PPMPROYECTOTheme {
-        RegisterScreen()
-    }
-}
-
-//PPMPROYECTOTheme {
-
-
-
-
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.ppm_proyecto.domain.models.user.UserRole
 
 @Composable
-
 fun RegisterScreen(
-    onNavigateToLogin: () -> Unit = {},
-    onRegisterSuccess: () -> Unit = {}
+    viewModel: RegisterViewModel = hiltViewModel(),
+    navigate: (AppDestination) -> Unit
 ) {
-
-    var selectedRole by remember { mutableStateOf("Estudiante") }
-    var username by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    val state by viewModel.state
 
     Column(
         modifier = Modifier
@@ -81,9 +64,13 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Selector animado Maestro / Estudiante
+        val selectedRoleLabel = if (state.role == UserRole.Teacher) "Maestro" else "Estudiante"
         RoleSelector(
-            selectedRole = selectedRole,
-            onRoleSelected = { selectedRole = it }
+            selectedRole = selectedRoleLabel,
+            onRoleSelected = {
+                val role = if (it == "Maestro") UserRole.Teacher else UserRole.Student
+                viewModel.onIntent(RegisterContract.Intent.SetRole(role), navigate)
+            }
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -100,8 +87,8 @@ fun RegisterScreen(
 
         // Campo de texto: Usuario
         OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
+            value = state.name,
+            onValueChange = { viewModel.onIntent(RegisterContract.Intent.SetName(it), navigate) },
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text("Ingresa tu usuario") },
             leadingIcon = {
@@ -128,8 +115,8 @@ fun RegisterScreen(
 
         // Campo de texto: Correo electrónico
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
+            value = state.email,
+            onValueChange = { viewModel.onIntent(RegisterContract.Intent.SetEmail(it), navigate) },
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text("ejemplo@correo.com") },
             leadingIcon = {
@@ -156,8 +143,8 @@ fun RegisterScreen(
 
         // Campo de texto: Contraseña
         OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
+            value = state.password,
+            onValueChange = { viewModel.onIntent(RegisterContract.Intent.SetPassword(it), navigate) },
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text("Mínimo 8 caracteres") },
             leadingIcon = {
@@ -171,16 +158,31 @@ fun RegisterScreen(
             shape = RoundedCornerShape(12.dp)
         )
 
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (state.error.isNotEmpty()) {
+            Text(
+                text = state.error,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Botón principal: Crear cuenta
         Button(
-            onClick = onRegisterSuccess,
+            onClick = { viewModel.onIntent(RegisterContract.Intent.Submit, navigate) },
+            enabled = !state.isLoading,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
             shape = RoundedCornerShape(12.dp)
         ) {
+            if (state.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                Spacer(Modifier.width(8.dp))
+            }
             Text(
                 text = "Crear cuenta",
                 style = MaterialTheme.typography.titleMedium
@@ -279,5 +281,14 @@ fun RoleButton(
             text = text,
             style = MaterialTheme.typography.titleMedium
         )
+    }
+}
+
+@Preview
+@Composable
+fun RegisterScreenPreview() {
+    PPMPROYECTOTheme {
+        // Preview sin Hilt
+        // RegisterScreen(navigate = {})
     }
 }
