@@ -1,6 +1,6 @@
 package com.example.ppm_proyecto.domain.di
 
-import com.example.ppm_proyecto.data.repository.student.StudentRepositoryImpl
+import com.example.ppm_proyecto.domain.repository.student.StudentRepositoryImpl
 import com.example.ppm_proyecto.domain.repository.student.StudentRepository
 import com.example.ppm_proyecto.domain.usecase.student.GetCourseSessionsUseCase
 import com.example.ppm_proyecto.domain.usecase.student.GetStudentAttendanceUseCase
@@ -12,7 +12,6 @@ import dagger.hilt.InstallIn
 
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
-import com.example.ppm_proyecto.domain.repository.student.StudentMockRepositoryImpl
 
 @Module
 @InstallIn(SingletonComponent::class)

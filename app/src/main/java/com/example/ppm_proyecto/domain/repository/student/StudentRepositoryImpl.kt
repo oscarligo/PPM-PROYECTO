@@ -1,52 +1,51 @@
-package com.example.ppm_proyecto.data.repository.student
+package com.example.ppm_proyecto.domain.repository.student
 
 import com.example.ppm_proyecto.domain.models.course.Course
 import com.example.ppm_proyecto.domain.models.course.CourseSession
 import com.example.ppm_proyecto.domain.models.course.SessionAttendance
 import com.example.ppm_proyecto.domain.models.user.User
-import com.example.ppm_proyecto.domain.repository.student.StudentRepository
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.tasks.await
-
-
+import com.example.ppm_proyecto.data.local.sample.sampleStudentUsers
+import com.example.ppm_proyecto.data.local.sample.sampleCourses
+import com.example.ppm_proyecto.data.local.sample.sampleEnrollments
+import com.example.ppm_proyecto.data.local.sample.sampleMobileSessions
+import com.example.ppm_proyecto.data.local.sample.sampleAlgebraSessions
+import com.example.ppm_proyecto.data.local.sample.sampleSessionAttendancesBySessionId
+import javax.inject.Inject
 
 /*===========================================================================
-Implementación del repositorio de estudantes para interactuar con Firestore.
+Implementación de StudentRepository para datos locales en el paquete sample.
 =============================================================================*/
-
-class StudentRepositoryImpl(
-    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
-) : StudentRepository {
+class StudentRepositoryImpl @Inject constructor( ) : StudentRepository {
 
     override suspend fun getStudentData(studentId: String): User? {
-        val document = db.collection("users")
-            .document(studentId)
-            .get()
-            .await()
-
-        return if (document.exists()) document.toObject(User::class.java) else null
+        return sampleStudentUsers.find { it.id == studentId }
     }
 
     override suspend fun getCourses(studentId: String): List<Course> {
-        val snapshot = db.collection("courses")
-            .whereArrayContains("studentIds", studentId)
-            .get()
-            .await()
-
-        return snapshot.toObjects(Course::class.java)
+        return sampleCourses.filter { course ->
+            sampleEnrollments.any { it.courseId == course.id && it.studentId == studentId }
+        }
     }
 
     override suspend fun getSessions(courseId: String): List<CourseSession> {
-        val snapshot = db.collection("courseSessions")
-            .whereEqualTo("courseId", courseId)
-            .get()
-            .await()
-
-        return snapshot.toObjects(CourseSession::class.java)
+        return when (courseId) {
+            "C-MOV" -> sampleMobileSessions
+            "C-ALG" -> sampleAlgebraSessions
+            else -> emptyList()
+        }
     }
 
     override suspend fun getAttendance(courseId: String, studentId: String): List<SessionAttendance> {
-        // Implementación real pendiente del esquema de Firestore
-        return emptyList()
+        val sessionIds = when (courseId) {
+            "C-MOV" -> sampleMobileSessions.map { it.id }
+            "C-ALG" -> sampleAlgebraSessions.map { it.id }
+            else -> emptyList()
+        }
+        return sessionIds.flatMap { sid ->
+            sampleSessionAttendancesBySessionId[sid].orElseEmpty().filter { it.studentId == studentId }
+        }
     }
 }
+
+// Extensión de ayuda para null-safe listas
+private fun <T> List<T>?.orElseEmpty(): List<T> = this ?: emptyList()

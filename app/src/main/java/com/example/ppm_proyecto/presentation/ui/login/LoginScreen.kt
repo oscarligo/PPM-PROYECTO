@@ -22,12 +22,15 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.ppm_proyecto.presentation.navigation.routes.AppDestination
 import com.example.ppm_proyecto.presentation.theme.PPMPROYECTOTheme
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
-fun LoginScreen(navigate: (AppDestination) -> Unit) {
-    var usuario by remember { mutableStateOf("") }
-    var contrasena by remember { mutableStateOf("") }
-    var mensajeError by remember { mutableStateOf("") }
+fun LoginScreen(
+    viewModel : LoginViewModel = hiltViewModel(),
+    navigate: (AppDestination) -> Unit
+) {
+
+    val state by viewModel.state
 
     // Contenedor principal
     Column(
@@ -69,12 +72,10 @@ fun LoginScreen(navigate: (AppDestination) -> Unit) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-
-
         // Campo de usuario
         OutlinedTextField(
-            value = usuario,
-            onValueChange = { usuario = it },
+            value = state.email,
+            onValueChange = { viewModel.onIntent(LoginContract.Intent.SetEmail(it), navigate) },
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text("Ingresa tu usuario") },
             leadingIcon = {
@@ -98,12 +99,10 @@ fun LoginScreen(navigate: (AppDestination) -> Unit) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-
-
         // Campo de texto: Contraseña
         OutlinedTextField(
-            value = contrasena,
-            onValueChange = { contrasena = it },
+            value = state.password,
+            onValueChange = { viewModel.onIntent(LoginContract.Intent.SetPassword(it), navigate) },
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text("Mínimo 8 caracteres") },
             leadingIcon = {
@@ -117,78 +116,52 @@ fun LoginScreen(navigate: (AppDestination) -> Unit) {
             shape = RoundedCornerShape(12.dp)
         )
 
-        // Mensaje de error (por ahora no funcional)
-        if (mensajeError.isNotEmpty()) {
+        // Mensaje de error
+        if (state.error.isNotEmpty()) {
             Text(
-                text = mensajeError,
+                text = state.error,
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
 
-        // Botón para inciar sesión 
+        // Botón para iniciar sesión
         Button(
-            onClick = {
-                // Aquí se conectara con la base de datos 
-                // if (validarUsuario(usuario, contraseña)) {
-                //     navController.navigate("home")
-                // } else {
-                //     mensajeError = "Usuario o contraseña incorrectos"
-                // }
-
-                //En un futuro para ver si es estudiante o maestro 
-                  /*
-                  val usuarioEncontrado = validarUsuario(usuario, contrasena)
-            
-                  if (usuarioEncontrado != null) {
-                      when (usuarioEncontrado.tipo) {
-                          "profesor" -> navController.navigate("home_profesor")
-                          "estudiante" -> navController.navigate("home_estudiante")
-                          else -> mensajeError = "Tipo de usuario no reconocido"
-                      }
-                  } else {
-                      mensajeError = "Usuario o contraseña incorrectos"
-                  }
-                  */
-
-                // Por ahora, va al home de uno 
-//                navController.navigate(StudentHomeScreen)
-            },
+            onClick = { viewModel.onIntent(LoginContract.Intent.Submit, navigate) },
+            enabled = !state.isLoading,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 24.dp)
         ) {
+            if (state.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                Spacer(Modifier.width(8.dp))
+            }
             Text(
-                    text = "Iniciar sesión",
-                    style = MaterialTheme.typography.titleLarge)
+                text = "Iniciar sesión",
+                style = MaterialTheme.typography.titleLarge
+            )
             Icon(
                 imageVector = Icons.Default.ArrowForward,
                 contentDescription = "Iniciar sesión"
             )
-
-
         }
 
         // Botón secundario
         TextButton(
-            onClick = {
-                //Poner key en el NavDisplay para que funcione 
-//                navController.navigate(navigate(Register))
-            },
+            onClick = { viewModel.onIntent(LoginContract.Intent.GoToRegister, navigate) },
             modifier = Modifier.padding(top = 16.dp)
         ) {
             Text("¿No tienes una cuenta? Crea una.")
         }
-
     }
-
 }
-
 
 @Preview
 @Composable
 fun LoginScreenPreview() {
     PPMPROYECTOTheme {
-        LoginScreen(navigate = {})
+        // Preview sin Hilt
+        // LoginScreen(navigate = {})
     }
 }
