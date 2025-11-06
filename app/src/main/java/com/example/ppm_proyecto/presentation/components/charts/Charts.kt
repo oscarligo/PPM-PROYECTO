@@ -25,6 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.text.style.TextAlign
 import com.example.ppm_proyecto.presentation.theme.StatusAbsentRedText
 import com.example.ppm_proyecto.presentation.theme.StatusPresentGreenText
 import com.example.ppm_proyecto.presentation.theme.StatusWarningYellowText
@@ -118,29 +120,40 @@ fun PieChart(
 
 @Composable
 fun BarChart(
-    items: List<Pair<String, Float>>, // Elemento 1: etiqueta, Elemento 2: valor
+    presentCount: Int,
+    absentCount: Int,
+    lateCount: Int,
     modifier: Modifier = Modifier,
     barColor: Color = MaterialTheme.colorScheme.primary,
     maxValue: Float? = null,
 ) {
-    val maxV = maxValue ?: items.maxOfOrNull { it.second } ?: 1f
-    val trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+    // Datos: etiquetas y valores
+    val items = listOf(
+        "Presentes" to presentCount.toFloat(),
+        "Ausencias" to absentCount.toFloat(),
+        "Tardes" to lateCount.toFloat()
+    )
+
+    // Calcula el valor máximo (ya sea dado o derivado)
+    val maxV = maxValue ?: items.maxOfOrNull { it.second } ?: 0f
+
+    // Color de fondo de las barras
+    val trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
 
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
+            .padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items.forEach { (label, value) ->
             val ratio = if (maxV > 0f) (value / maxV).coerceIn(0f, 1f) else 0f
 
-            // Map label to color: Presentes (green), Ausencias (red), Tardes (yellow)
-            val normalized = label.trim().lowercase()
-            val barColorThis = when {
-                normalized.startsWith("pres") -> StatusPresentGreenText
-                normalized.startsWith("ausen") || normalized.startsWith("absen") -> StatusAbsentRedText
-                normalized.startsWith("tard") -> StatusWarningYellowText
+            // Colores por categoría
+            val color = when (label.lowercase()) {
+                "presentes" -> StatusPresentGreenText
+                "ausencias" -> StatusAbsentRedText
+                "tardes" -> StatusWarningYellowText
                 else -> barColor
             }
 
@@ -153,6 +166,7 @@ fun BarChart(
                     style = MaterialTheme.typography.labelMedium,
                     modifier = Modifier.width(96.dp)
                 )
+
                 Box(
                     modifier = Modifier
                         .weight(1f)
@@ -163,10 +177,21 @@ fun BarChart(
                         modifier = Modifier
                             .fillMaxHeight()
                             .fillMaxWidth(ratio)
-                            .background(barColorThis, RoundedCornerShape(12.dp))
+                            .background(color, RoundedCornerShape(12.dp))
                     )
                 }
+
+                // Texto con el valor numérico al final
+                Text(
+                    text = value.toInt().toString(),
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .widthIn(min = 24.dp),
+                    textAlign = TextAlign.End
+                )
             }
         }
     }
 }
+

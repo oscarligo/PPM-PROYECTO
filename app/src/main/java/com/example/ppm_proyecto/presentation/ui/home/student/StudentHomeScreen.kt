@@ -17,19 +17,19 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.ppm_proyecto.domain.models.course.Course
 import com.example.ppm_proyecto.domain.models.user.Notification
 import com.example.ppm_proyecto.presentation.components.AppNavigationDrawer
 import com.example.ppm_proyecto.presentation.components.HomeTopBar
 import com.example.ppm_proyecto.presentation.components.StatisticsCard
 import com.example.ppm_proyecto.presentation.navigation.routes.AppDestination
-// timestamp
-import com.google.firebase.Timestamp
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 
 /*============================================
@@ -37,20 +37,20 @@ Pantalla de inicio para estudiantes
 ==============================================*/
 @Composable
 fun StudentHomeScreen(
-    viewModel: StudentHomeViewModel = StudentHomeViewModel(),
+    viewModel: StudentHomeViewModel = hiltViewModel(),
     onNavigate: (AppDestination) -> Unit,
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state
 
     ModalNavigationDrawer(
         drawerState = state.isDrawerOpen,
         drawerContent = {
             AppNavigationDrawer(
                 drawerState = state.isDrawerOpen,
-                onNavigateToProfile = { viewModel.onIntent(StudentHomeIntent.OpenProfile, onNavigate) },
-                onNavigateToSecurity = { viewModel.onIntent(StudentHomeIntent.OpenSecuritySettings, onNavigate) },
-                onNavigateToAppearance = { viewModel.onIntent(StudentHomeIntent.OpenAppearanceSettings, onNavigate) },
-                onCloseDrawer = { viewModel.onIntent(StudentHomeIntent.CloseDrawer, onNavigate) }
+                onNavigateToProfile = { viewModel.onIntent(StudentContract.Intent.OpenProfile, onNavigate) },
+                onNavigateToSecurity = { viewModel.onIntent(StudentContract.Intent.OpenSecuritySettings, onNavigate) },
+                onNavigateToAppearance = { viewModel.onIntent(StudentContract.Intent.OpenAppearanceSettings, onNavigate) },
+                onCloseDrawer = { viewModel.onIntent(StudentContract.Intent.CloseDrawer, onNavigate) }
             )
         }
     ) {
@@ -60,7 +60,7 @@ fun StudentHomeScreen(
                     userRoleText = "Estudiante",
                     profilePictureUrl = state.user?.profileImageUrl ?: "",
                     onOpenDrawer = {
-                        viewModel.onIntent(StudentHomeIntent.ToggleDrawer, onNavigate)
+                        viewModel.onIntent(StudentContract.Intent.ToggleDrawer, onNavigate)
                     }
                 )
             }
@@ -74,17 +74,12 @@ fun StudentHomeScreen(
                     )
             ) {
 
-
-
                 StatisticsCard(
-                    title = "Estadísticas de Asistencia",
-                    isLoading = state.isLoading,
-                    errorMessage = state.error,
                     presentCount = state.presentCount,
                     absentCount = state.absentCount,
                     lateCount = state.lateCount,
                     attendancePercent = state.attendancePercent,
-                    barItems = state.barItems,
+                    title = "Estadísticas de Asistencia",
                     modifier = Modifier.padding(16.dp)
                 )
 
@@ -92,7 +87,7 @@ fun StudentHomeScreen(
 
                 // Sección: Notificaciones
                 NotificationsList(state.notifications) { notificationId ->
-                    viewModel.onIntent(StudentHomeIntent.ViewNotification(notificationId), onNavigate)
+                    viewModel.onIntent(StudentContract.Intent.ViewNotification(notificationId), onNavigate)
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -116,6 +111,8 @@ fun NotificationsList(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
 
+        val dateFormatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -129,7 +126,8 @@ fun NotificationsList(
                         .clickable { onClick(noti.id) }
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = noti.date., style = MaterialTheme.typography.bodySmall)
+                        // Format Firebase Timestamp to a readable date
+                        Text(text = dateFormatter.format(noti.date.toDate()), style = MaterialTheme.typography.bodySmall)
                         Text(text = noti.title, style = MaterialTheme.typography.titleSmall)
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(text = noti.message, style = MaterialTheme.typography.bodySmall)

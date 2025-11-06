@@ -8,13 +8,39 @@ import com.example.ppm_proyecto.domain.models.user.User
 import com.example.ppm_proyecto.domain.models.user.UserRole
 import com.example.ppm_proyecto.domain.models.course.Enrollment
 import com.google.firebase.Timestamp
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.TimeZone
 
-// Utilidades simples para crear Timestamps desde strings
-private fun tsDate(date: String): Timestamp = Timestamp(SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(date)!!)
-private fun tsDateTime(date: String, time: String): Timestamp = Timestamp(SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).parse("$date $time")!!)
+// Utilidades seguras para crear Timestamps desde strings
+private fun tsDate(date: String): Timestamp {
+    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+        isLenient = false
+    }
+    return try {
+        val parsed = sdf.parse(date) ?: return Timestamp.now()
+        Timestamp(parsed)
+    } catch (_: ParseException) {
+        Timestamp.now()
+    }
+}
 
+private fun tsDateTime(date: String, time: String): Timestamp {
+    val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+        isLenient = false
+    }
+    return try {
+        val parsed = sdf.parse("$date $time") ?: return Timestamp.now()
+        Timestamp(parsed)
+    } catch (_: ParseException) {
+        Timestamp.now()
+    }
+}
+
+// Usuarios de ejemplo
 val sampleTeacherUsers = listOf(
     User(
         id = "teacher-1",
@@ -83,11 +109,10 @@ val sampleEnrollments: List<Enrollment> = listOf(
     Enrollment(id = "enr-4", studentId = "stu-3", courseId = "C-ALG"),
 )
 
-// Sesiones de ejemplo para Programación Móvil
+// Sesiones de ejemplo para Programación Móvil (no existe courseId en el modelo)
 val sampleMobileSessions: List<CourseSession> = listOf(
     CourseSession(
         id = "S-MOV-001",
-        courseId = "C-MOV",
         scheduledDate = tsDate("2024-10-01"),
         startTime = tsDateTime("2024-10-01", "09:00"),
         endTime = tsDateTime("2024-10-01", "11:00"),
@@ -95,7 +120,6 @@ val sampleMobileSessions: List<CourseSession> = listOf(
     ),
     CourseSession(
         id = "S-MOV-002",
-        courseId = "C-MOV",
         scheduledDate = tsDate("2024-10-08"),
         startTime = tsDateTime("2024-10-08", "09:00"),
         endTime = tsDateTime("2024-10-08", "11:00"),
@@ -107,7 +131,6 @@ val sampleMobileSessions: List<CourseSession> = listOf(
 val sampleAlgebraSessions: List<CourseSession> = listOf(
     CourseSession(
         id = "S-ALG-001",
-        courseId = "C-ALG",
         scheduledDate = tsDate("2024-10-02"),
         startTime = tsDateTime("2024-10-02", "10:00"),
         endTime = tsDateTime("2024-10-02", "12:00"),
@@ -115,7 +138,6 @@ val sampleAlgebraSessions: List<CourseSession> = listOf(
     ),
     CourseSession(
         id = "S-ALG-002",
-        courseId = "C-ALG",
         scheduledDate = tsDate("2024-10-09"),
         startTime = tsDateTime("2024-10-09", "10:00"),
         endTime = tsDateTime("2024-10-09", "12:00"),
@@ -123,51 +145,22 @@ val sampleAlgebraSessions: List<CourseSession> = listOf(
     ),
 )
 
-// Asistencias de ejemplo
-
-val sampleSessionAttendances: List<SessionAttendance> = listOf(
-    // Asistencias para la primera sesión de Programación Móvil
-    SessionAttendance(
-        sessionId = "S-MOV-001",
-        studentId = "stu-1",
-        status = AttendanceStatus.Present.name
+// Asistencias de ejemplo por sesión (clave = sessionId)
+val sampleSessionAttendancesBySessionId: Map<String, List<SessionAttendance>> = mapOf(
+    "S-MOV-001" to listOf(
+        SessionAttendance(id = "att-001", studentId = "stu-1", status = AttendanceStatus.Present.name),
+        SessionAttendance(id = "att-002", studentId = "stu-2", status = AttendanceStatus.Late.name),
     ),
-    SessionAttendance(
-        sessionId = "S-MOV-001",
-        studentId = "stu-2",
-        status = AttendanceStatus.Late.name
+    "S-MOV-002" to listOf(
+        SessionAttendance(id = "att-003", studentId = "stu-1", status = AttendanceStatus.Absent.name),
+        SessionAttendance(id = "att-004", studentId = "stu-2", status = AttendanceStatus.Present.name),
     ),
-    // Asistencias para la segunda sesión de Programación Móvil
-    SessionAttendance(
-        sessionId = "S-MOV-002",
-        studentId = "stu-1",
-        status = AttendanceStatus.Absent.name
+    "S-ALG-001" to listOf(
+        SessionAttendance(id = "att-005", studentId = "stu-1", status = AttendanceStatus.Present.name),
+        SessionAttendance(id = "att-006", studentId = "stu-3", status = AttendanceStatus.Present.name),
     ),
-    SessionAttendance(
-        sessionId = "S-MOV-002",
-        studentId = "stu-2",
-        status = AttendanceStatus.Present.name
-    ),
-    // Asistencias para la primera sesión de Álgebra
-    SessionAttendance(
-        sessionId = "S-ALG-001",
-        studentId = "stu-1",
-        status = AttendanceStatus.Present.name
-    ),
-    SessionAttendance(
-        sessionId = "S-ALG-001",
-        studentId = "stu-3",
-        status = AttendanceStatus.Present.name
-    ),
-    // Asistencias para la segunda sesión de Álgebra
-    SessionAttendance(
-        sessionId = "S-ALG-002",
-        studentId = "stu-1",
-        status = AttendanceStatus.Late.name
-    ),
-    SessionAttendance(
-        sessionId = "S-ALG-002",
-        studentId = "stu-3",
-        status = AttendanceStatus.Absent.name
+    "S-ALG-002" to listOf(
+        SessionAttendance(id = "att-007", studentId = "stu-1", status = AttendanceStatus.Late.name),
+        SessionAttendance(id = "att-008", studentId = "stu-3", status = AttendanceStatus.Absent.name),
     ),
 )

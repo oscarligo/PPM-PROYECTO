@@ -9,13 +9,13 @@ import com.example.ppm_proyecto.data.local.sample.sampleCourses
 import com.example.ppm_proyecto.data.local.sample.sampleEnrollments
 import com.example.ppm_proyecto.data.local.sample.sampleMobileSessions
 import com.example.ppm_proyecto.data.local.sample.sampleAlgebraSessions
-import com.example.ppm_proyecto.data.local.sample.sampleSessionAttendances
+import com.example.ppm_proyecto.data.local.sample.sampleSessionAttendancesBySessionId
 import javax.inject.Inject
 
 /*===========================================================================
 Implementación de StudentRepository para datos locales en el paquete sample.
 =============================================================================*/
-class StudentMockRepositoryImpl @Inject constructor() : StudentRepository {
+class StudentMockRepositoryImpl @Inject constructor( ) : StudentRepository {
 
     override suspend fun getStudentData(studentId: String): User? {
         return sampleStudentUsers.find { it.id == studentId }
@@ -28,18 +28,24 @@ class StudentMockRepositoryImpl @Inject constructor() : StudentRepository {
     }
 
     override suspend fun getSessions(courseId: String): List<CourseSession> {
-        val allSessions = sampleMobileSessions + sampleAlgebraSessions
-        return allSessions.filter { it.courseId == courseId }
+        return when (courseId) {
+            "C-MOV" -> sampleMobileSessions
+            "C-ALG" -> sampleAlgebraSessions
+            else -> emptyList()
+        }
     }
 
     override suspend fun getAttendance(courseId: String, studentId: String): List<SessionAttendance> {
-        val allSessions = sampleMobileSessions + sampleAlgebraSessions
-        val sessionIdsOfCourse = allSessions.filter { it.courseId == courseId }.map { it.id }
-
-        // Unir las asistencias de todas las sesiones del curso y filtrar por estudiante
-        return sessionIdsOfCourse.flatMap { sessionId ->
-            val attendances = sampleSessionAttendances[sessionId].orEmpty()
-            attendances.filter { it.studentId == studentId }
+        val sessionIds = when (courseId) {
+            "C-MOV" -> sampleMobileSessions.map { it.id }
+            "C-ALG" -> sampleAlgebraSessions.map { it.id }
+            else -> emptyList()
+        }
+        return sessionIds.flatMap { sid ->
+            sampleSessionAttendancesBySessionId[sid].orElseEmpty().filter { it.studentId == studentId }
         }
     }
 }
+
+// Extensión de ayuda para null-safe listas
+private fun <T> List<T>?.orElseEmpty(): List<T> = this ?: emptyList()

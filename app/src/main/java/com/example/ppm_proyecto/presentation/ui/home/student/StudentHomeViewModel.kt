@@ -7,12 +7,11 @@ import com.example.ppm_proyecto.presentation.navigation.routes.AppearanceSetting
 import com.example.ppm_proyecto.presentation.navigation.routes.CourseDetails
 import com.example.ppm_proyecto.presentation.navigation.routes.SecuritySettings
 import com.example.ppm_proyecto.presentation.navigation.routes.Profile
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import com.example.ppm_proyecto.domain.models.course.AttendanceStatus
 import kotlin.math.roundToInt
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.example.ppm_proyecto.domain.models.course.SessionAttendance
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,8 +19,10 @@ import javax.inject.Inject
 import com.example.ppm_proyecto.domain.usecase.student.GetStudentDataUseCase
 import com.example.ppm_proyecto.domain.usecase.student.GetStudentCoursesUseCase
 import com.example.ppm_proyecto.domain.usecase.student.GetStudentAttendanceUseCase
-import com.example.ppm_proyecto.domain.usecase.student.GetCourseSessionsUseCase
 import kotlinx.coroutines.launch
+import com.example.ppm_proyecto.core.util.Result
+import com.example.ppm_proyecto.data.local.sample.sampleNotifications
+
 
 
 @HiltViewModel
@@ -29,101 +30,110 @@ class StudentHomeViewModel @Inject constructor(
     private val getStudentDataUseCase: GetStudentDataUseCase,
     private val getStudentCoursesUseCase: GetStudentCoursesUseCase,
     private val getStudentAttendanceUseCase: GetStudentAttendanceUseCase,
-    private val getCourseSessionsUseCase: GetCourseSessionsUseCase,
 )
 
 
     : ViewModel() {
-    private val _state = MutableStateFlow(StudentHomeState())
-    val state = _state.asStateFlow()
-
-    private val studentId = "stu-1"
+    var state = mutableStateOf(StudentContract.State())
 
     init {
         loadStudentData()
     }
 
-    fun onIntent(intent: StudentHomeIntent, navigate: (AppDestination) -> Unit) {
+    fun onIntent(intent: StudentContract.Intent, navigate: (AppDestination) -> Unit) {
         when (intent) {
-            is StudentHomeIntent.SeeCourseDetails -> navigate(CourseDetails(intent.courseId))
-            StudentHomeIntent.OpenProfile -> navigate(Profile)
-            StudentHomeIntent.OpenSecuritySettings -> navigate(SecuritySettings)
-            StudentHomeIntent.OpenAppearanceSettings -> navigate(AppearanceSettings)
-            StudentHomeIntent.ToggleDrawer -> openDrawer()
-            StudentHomeIntent.CloseDrawer -> closeDrawer()
-
-            is StudentHomeIntent.ViewNotification -> {
-                _state.value = _state.value.copy(selectedNotification = intent.notificationId)
-            }
-
+            is StudentContract.Intent.SeeCourseDetails -> navigate(CourseDetails(intent.courseId))
+            StudentContract.Intent.OpenProfile -> navigate(Profile)
+            StudentContract.Intent.OpenSecuritySettings -> navigate(SecuritySettings)
+            StudentContract.Intent.OpenAppearanceSettings -> navigate(AppearanceSettings)
+            is StudentContract.Intent.ViewNotification -> state.value = state.value.copy(selectedNotification = intent.notificationId)
+            StudentContract.Intent.ToggleDrawer -> openDrawer()
+            StudentContract.Intent.CloseDrawer -> closeDrawer()
         }
     }
 
     private fun loadStudentData() {
+        // Use a fixed sample student id for demo / local data. In a real app you'd get this from auth.
+        val studentId = "stu-1"
+
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
+            // Indicate loading
+            state.value = state.value.copy(isLoading = true, error = "")
 
-            val student = getStudentDataUseCase(studentId)
-
-            val courses = getStudentCoursesUseCase(studentId)
-
-            val allAttendances = mutableListOf<SessionAttendance>()
-            for (course in courses) {
-                val attendance = getStudentAttendanceUseCase(course.id, studentId)
-                allAttendances.addAll(attendance)
+            // 1) Get basic user data
+            when (val res = getStudentDataUseCase(studentId)) {
+                is Result.Ok -> {
+                    state.value = state.value.copy(user = res.value)
+                }
+                is Result.Err -> {
+                    state.value = state.value.copy(error = "Error cargando datos de usuario: ${res.throwable.message}")
+                }
             }
 
-            val stats = calculateStats(allAttendances)
+            // 2) Get courses
+            when (val resCourses = getStudentCoursesUseCase(studentId)) {
+                is Result.Ok -> {
+                    state.value = state.value.copy(courses = resCourses.value)
+                }
+                is Result.Err -> {
+                    val prev = state.value
+                    state.value = prev.copy(error = "Error cargando cursos: ${resCourses.throwable.message}")
+                }
+            }
 
-            _state.value = _state.value.copy(
-                isLoading = false,
-                student = student,
-                courses = courses,
-                attendanceRecords = allAttendances,
-                presentCount = stats.present,
-                absentCount = stats.absent,
-                lateCount = stats.late,
-                attendancePercent = stats.percent,
-                barItems = stats.barItems
-            )
+            // 3) Obtener asistencias del estudiante por curso y calcular estadísticas
+            try {
+                val allAttendances = mutableListOf<SessionAttendance>()
+                state.value.courses.forEach { course ->
+                    when (val attRes = getStudentAttendanceUseCase(course.id, studentId)) {
+                        is Result.Ok -> allAttendances.addAll(attRes.value)
+                        is Result.Err -> { /* ignorar error puntual de curso */ }
+                    }
+                }
+                calculateStats(allAttendances)
+            } catch (t: Throwable) {
+                state.value = state.value.copy(error = "Error procesando asistencias: ${t.message}")
+            }
+
+            // 4) Cargar notificaciones locales de muestra para pruebas
+            state.value = state.value.copy(notifications = sampleNotifications)
+
+            // Done loading
+            state.value = state.value.copy(isLoading = false)
         }
     }
 
 
-    private fun calculateStats(attendanceRecords: List<SessionAttendance>): Unit {
-        // Contar los estados
+    /**
+     * Calcula las estadísticas de asistencia a partir de los registros proporcionados.
+     */
+    private fun calculateStats(attendanceRecords: List<SessionAttendance>) {
+
         val present = attendanceRecords.count { it.status == AttendanceStatus.Present.name }
         val absent = attendanceRecords.count { it.status == AttendanceStatus.Absent.name }
         val late = attendanceRecords.count { it.status == AttendanceStatus.Late.name }
 
-        // Calcular totales y porcentaje
         val total = present + absent + late
         val percent = if (total > 0) ((present.toFloat() / total) * 100).roundToInt() else 0
 
-        // Preparar datos para un gráfico o barra visual
-        val bars = listOf(
-            "Ausente" to absent.toFloat(),
-            "Tarde" to late.toFloat(),
-            "Presente" to present.toFloat(),
-        )
-
-        _state.value = _state.value.copy(
+        state.value = state.value.copy(
             presentCount = present,
             absentCount = absent,
             lateCount = late,
             attendancePercent = percent,
-            barItems = bars
         )
     }
 
 
-
+/**
+ * Abre el menú lateral de navegación.
+ */
 
     private fun openDrawer() {
-        _state.value = _state.value.copy(isDrawerOpen = DrawerState(DrawerValue.Open))
+        state.value = state.value.copy(isDrawerOpen = DrawerState(DrawerValue.Open))
     }
 
     private fun closeDrawer() {
-        _state.value = _state.value.copy(isDrawerOpen = DrawerState(DrawerValue.Closed))
+        state.value = state.value.copy(isDrawerOpen = DrawerState(DrawerValue.Closed))
     }
 }

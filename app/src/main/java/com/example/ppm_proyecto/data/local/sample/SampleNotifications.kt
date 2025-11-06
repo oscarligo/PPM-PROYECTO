@@ -1,22 +1,39 @@
 package com.example.ppm_proyecto.data.local.sample
 
 import com.example.ppm_proyecto.domain.models.user.Notification
-import java.sql.Timestamp
+import com.google.firebase.Timestamp
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
 
-private fun ts(date: String): Timestamp = Timestamp.valueOf("$date 00:00:00")
+
+// Helper para crear un Firebase Timestamp a partir de una fecha en formato ISO (yyyy-MM-dd)
+private fun ts(isoDate: String): Timestamp {
+    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+        isLenient = false
+    }
+    return try {
+        val date = sdf.parse(isoDate) ?: return Timestamp.now()
+        Timestamp(date)
+    } catch (_: ParseException) {
+        Timestamp.now()
+    }
+}
 
 val sampleNotifications: List<Notification> = listOf(
     Notification(
         id = "n-001",
         title = "Recordatorio de clase",
-        message = "No olvides la clase de Programación Móvil mañana a las 9:00",
-        date = ts("2024-10-07"),
+        message = "Tienes limite de faltas!!!!!",
+        date = ts("2024-10-04"),
         isRead = false
     ),
     Notification(
         id = "n-002",
-        title = "Cambio de aula",
-        message = "La clase de Álgebra se trasladó al aula 203",
+        title = "Asistencia perfecta",
+        message = "Muy bien! Tu asistencia es excelente.",
         date = ts("2024-10-05"),
         isRead = true
     )
