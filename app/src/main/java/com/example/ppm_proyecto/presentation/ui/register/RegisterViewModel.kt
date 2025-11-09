@@ -5,7 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.example.ppm_proyecto.core.util.Result
 import com.example.ppm_proyecto.domain.models.user.UserRole
-import com.example.ppm_proyecto.domain.usecases.auth.RegisterUseCase
+import com.example.ppm_proyecto.domain.models.user.User
+import com.example.ppm_proyecto.domain.usecase.auth.RegisterUseCase
+import com.example.ppm_proyecto.domain.usecase.auth.CurrentUserUseCase
+import com.example.ppm_proyecto.domain.usecase.user.CreateUserUseCase
 import com.example.ppm_proyecto.presentation.navigation.routes.AppDestination
 import com.example.ppm_proyecto.presentation.navigation.routes.StudentHome
 import com.example.ppm_proyecto.presentation.navigation.routes.TeacherHome
@@ -16,6 +19,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
     private val registerUseCase: RegisterUseCase,
+    private val currentUserUseCase: CurrentUserUseCase,
+    private val createUserUseCase: CreateUserUseCase,
 ) : ViewModel() {
 
     var state = mutableStateOf(RegisterContract.State())
@@ -44,17 +49,34 @@ class RegisterViewModel @Inject constructor(
 
         viewModelScope.launch {
             state.value = state.value.copy(isLoading = true, error = "")
-            when (val res = registerUseCase( email, password)) {
+            when (val res = registerUseCase(email, password)) {
                 is Result.Ok -> {
-                    navigate(
-                        if (state.value.role == UserRole.Student) {
-                            StudentHome
-                        } else {
-                            TeacherHome
-                        }
+                    val uid = currentUserUseCase()
+                    if (uid == null) {
+                        state.value = state.value.copy(isLoading = false, error = "No se pudo obtener UID")
+                        return@launch
+                    }
+                    val user = User(
+                        id = uid,
+                        name = name,
+                        email = email,
+                        role = state.value.role,
                     )
 
+                    when (val createRes = createUserUseCase(user)) {
+                        is Result.Ok -> {
+                            state.value = state.value.copy(isLoading = false, user = user)
+                            navigate(if (state.value.role == UserRole.Student) StudentHome else TeacherHome)
+                        }
+                        is Result.Err -> {
+                            state.value = state.value.copy(
+                                isLoading = false,
+                                error = createRes.throwable.message ?: "Error al crear perfil"
+                            )
+                        }
+                    }
                 }
+
                 is Result.Err -> {
                     state.value = state.value.copy(
                         isLoading = false,
@@ -64,5 +86,5 @@ class RegisterViewModel @Inject constructor(
             }
         }
     }
-}
 
+}

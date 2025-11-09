@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.ppm_proyecto.presentation.theme.StatusAbsentRedText
 import com.example.ppm_proyecto.presentation.theme.StatusPresentGreenText
 import com.example.ppm_proyecto.presentation.theme.StatusWarningYellowText
@@ -194,4 +195,22 @@ fun BarChart(
         }
     }
 }
+
+@Preview
+@Composable
+fun PieChartPreview() {
+    PieChart(
+        absence = 3,
+        presence = 7,
+        late = 2,
+        centerText = "70%"
+    )
+}
+
+@Preview
+@Composable
+fun BarChartPreview() {
+
+}
+
 

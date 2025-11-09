@@ -27,6 +27,7 @@ import com.example.ppm_proyecto.domain.models.course.AttendanceStatus
 import com.example.ppm_proyecto.presentation.components.AppNavigationDrawer
 import com.example.ppm_proyecto.presentation.navigation.routes.AppDestination
 import com.example.ppm_proyecto.presentation.navigation.routes.AppearanceSettings
+import com.example.ppm_proyecto.presentation.navigation.routes.Login
 import com.example.ppm_proyecto.presentation.navigation.routes.Profile
 import com.example.ppm_proyecto.presentation.navigation.routes.SecuritySettings
 import com.example.ppm_proyecto.presentation.theme.*
@@ -48,6 +49,7 @@ fun CourseDetailsStudentScreen(
                 onNavigateToProfile = { onNavigate(Profile) },
                 onNavigateToSecurity = { onNavigate(SecuritySettings) },
                 onNavigateToAppearance = { onNavigate(AppearanceSettings) },
+                onNavigateToLogin = { onNavigate(Login) },
                 onCloseDrawer = {
                     scope.launch {
                         drawerState.close()

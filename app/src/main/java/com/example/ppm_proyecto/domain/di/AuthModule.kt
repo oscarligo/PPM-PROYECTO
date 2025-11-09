@@ -2,10 +2,10 @@ package com.example.ppm_proyecto.domain.di
 
 import com.example.ppm_proyecto.domain.repository.auth.AuthRepository
 import com.example.ppm_proyecto.domain.repository.auth.AuthRepositoryImpl
-import com.example.ppm_proyecto.domain.usecases.auth.LoginUseCase
-import com.example.ppm_proyecto.domain.usecases.auth.RegisterUseCase
-import com.example.ppm_proyecto.domain.usecases.auth.CurrentUserUseCase
-import com.example.ppm_proyecto.domain.usecases.auth.LogoutUseCase
+import com.example.ppm_proyecto.domain.usecase.auth.LoginUseCase
+import com.example.ppm_proyecto.domain.usecase.auth.RegisterUseCase
+import com.example.ppm_proyecto.domain.usecase.auth.CurrentUserUseCase
+import com.example.ppm_proyecto.domain.usecase.auth.LogoutUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

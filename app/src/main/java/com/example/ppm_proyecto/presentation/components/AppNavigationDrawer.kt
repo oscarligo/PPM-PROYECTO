@@ -20,7 +20,6 @@ import com.example.ppm_proyecto.presentation.theme.PPMPROYECTOTheme
 /*===============================================================
 Navigation Drawer reutilizable para toda la aplicación.
 Los botones navegan a: Perfil, Seguridad y Apariencia.
-Al presionar un botón, navega Y cierra el drawer automáticamente.
 =================================================================*/
 @Preview
 @Composable
@@ -31,6 +30,7 @@ fun AppNavigationDrawerPreview() {
             onNavigateToProfile = {},
             onNavigateToSecurity = {},
             onNavigateToAppearance = {},
+            onNavigateToLogin = {},
             onCloseDrawer = {}
         )
     }
@@ -43,6 +43,7 @@ fun AppNavigationDrawer(
     onNavigateToProfile: () -> Unit,      // Navega a Profile
     onNavigateToSecurity: () -> Unit,     // Navega a SecuritySettings
     onNavigateToAppearance: () -> Unit,   // Navega a AppearanceSettings
+    onNavigateToLogin: () -> Unit,        // Navega a Login
     onCloseDrawer: () -> Unit,            // Cierra el drawer
     modifier: Modifier = Modifier
 ) {
@@ -99,6 +100,16 @@ fun AppNavigationDrawer(
             )
 
             Spacer(modifier = Modifier.weight(1f))
+
+            DrawerMenuItem(
+                icon = Icons.Default.Lock,
+                label = "Cerrar Sesión",
+                onClick = {
+                    onNavigateToLogin()
+                    onCloseDrawer()
+                }
+            )
+            Spacer(modifier = Modifier.weight(0.03f))
 
             // Footer opcional
             DrawerFooter()

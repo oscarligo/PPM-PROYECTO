@@ -2,6 +2,7 @@ package com.example.ppm_proyecto.presentation.ui.home.student
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -27,6 +30,7 @@ import com.example.ppm_proyecto.domain.models.user.Notification
 import com.example.ppm_proyecto.presentation.components.AppNavigationDrawer
 import com.example.ppm_proyecto.presentation.components.HomeTopBar
 import com.example.ppm_proyecto.presentation.components.StatisticsCard
+import com.example.ppm_proyecto.presentation.components.LoadingOverlay
 import com.example.ppm_proyecto.presentation.navigation.routes.AppDestination
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -42,6 +46,11 @@ fun StudentHomeScreen(
 ) {
     val state by viewModel.state
 
+    // Cargar datos al entrar en la pantalla (si aún no se cargaron)
+    LaunchedEffect(Unit) {
+        viewModel.ensureLoaded()
+    }
+
     ModalNavigationDrawer(
         drawerState = state.isDrawerOpen,
         drawerContent = {
@@ -50,6 +59,7 @@ fun StudentHomeScreen(
                 onNavigateToProfile = { viewModel.onIntent(StudentContract.Intent.OpenProfile, onNavigate) },
                 onNavigateToSecurity = { viewModel.onIntent(StudentContract.Intent.OpenSecuritySettings, onNavigate) },
                 onNavigateToAppearance = { viewModel.onIntent(StudentContract.Intent.OpenAppearanceSettings, onNavigate) },
+                onNavigateToLogin = { viewModel.onIntent(StudentContract.Intent.Logout, onNavigate) },
                 onCloseDrawer = { viewModel.onIntent(StudentContract.Intent.CloseDrawer, onNavigate) }
             )
         }
@@ -57,6 +67,7 @@ fun StudentHomeScreen(
         Scaffold(
             topBar = {
                 HomeTopBar(
+                    username = state.user?.name ?: "---",
                     userRoleText = "Estudiante",
                     profilePictureUrl = state.user?.profileImageUrl ?: "",
                     onOpenDrawer = {
@@ -65,35 +76,48 @@ fun StudentHomeScreen(
                 )
             }
         ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(
-                        top = innerPadding.calculateTopPadding(),
-                        bottom = innerPadding.calculateBottomPadding()
+            Box(Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(
+                            top = innerPadding.calculateTopPadding(),
+                            bottom = innerPadding.calculateBottomPadding()
+                        )
+                ) {
+
+                    StatisticsCard(
+                        presentCount = state.presentCount,
+                        absentCount = state.absentCount,
+                        lateCount = state.lateCount,
+                        attendancePercent = state.attendancePercent,
+                        title = "Estadísticas de Asistencia",
+                        modifier = Modifier.padding(16.dp)
                     )
-            ) {
 
-                StatisticsCard(
-                    presentCount = state.presentCount,
-                    absentCount = state.absentCount,
-                    lateCount = state.lateCount,
-                    attendancePercent = state.attendancePercent,
-                    title = "Estadísticas de Asistencia",
-                    modifier = Modifier.padding(16.dp)
-                )
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                Spacer(modifier = Modifier.height(8.dp))
+                    // Sección: Notificaciones
+                    NotificationsList(
+                        notifications = state.notifications,
+                        isLoading = state.isLoading,
+                        loaded = state.loaded
+                    ) { notificationId ->
+                        viewModel.onIntent(StudentContract.Intent.ViewNotification(notificationId), onNavigate)
+                    }
 
-                // Sección: Notificaciones
-                NotificationsList(state.notifications) { notificationId ->
-                    viewModel.onIntent(StudentContract.Intent.ViewNotification(notificationId), onNavigate)
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Sección: Cursos asignados
+                    CoursesList(
+                        courses = state.courses,
+                        isLoading = state.isLoading,
+                        loaded = state.loaded
+                    )
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Sección: Cursos asignados
-                CoursesList(state.courses)
+                if (state.isLoading || !state.loaded) {
+                    LoadingOverlay()
+                }
             }
         }
     }
@@ -102,17 +126,42 @@ fun StudentHomeScreen(
 @Composable
 fun NotificationsList(
     notifications: List<Notification>,
+    isLoading: Boolean,
+    loaded: Boolean,
     onClick: (String) -> Unit,
 ) {
+    Text(
+        text = "Notificaciones",
+        style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+    )
+
+    if (notifications.isEmpty() && loaded && !isLoading) {
+        // Placeholder cuando no hay notificaciones
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        ) {
+            ElevatedCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp)
+            ) {
+                Column(modifier = Modifier.padding(24.dp)) {
+                    Text(
+                        text = "Estás al día, no hay notificaciones",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+        return
+    }
+
     if (notifications.isNotEmpty()) {
-        Text(
-            text = "Notificaciones",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        )
-
         val dateFormatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -141,8 +190,10 @@ fun NotificationsList(
 }
 
 @Composable
-fun CoursesList (
-    List : List<Course>
+fun CoursesList(
+    courses: List<Course>,
+    isLoading: Boolean,
+    loaded: Boolean,
 ) {
     Text(
         text = "Mis cursos",
@@ -150,12 +201,35 @@ fun CoursesList (
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
     )
 
+    if (courses.isEmpty() && loaded && !isLoading) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        ) {
+            ElevatedCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp)
+            ) {
+                Column(modifier = Modifier.padding(24.dp)) {
+                    Text(
+                        text = "No estás asignado a ningún curso",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+        return
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
     ) {
-        items(List) { course ->
+        items(courses) { course ->
             ElevatedCard(
                 modifier = Modifier
                     .fillMaxWidth()

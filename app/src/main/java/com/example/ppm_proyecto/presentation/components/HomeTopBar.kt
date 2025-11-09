@@ -33,6 +33,7 @@ import com.example.ppm_proyecto.presentation.theme.UniGreenDark
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun HomeTopBar(
+    username: String,
     userRoleText: String,
     profilePictureUrl: String,
     onOpenDrawer: () -> Unit,
@@ -61,9 +62,8 @@ fun HomeTopBar(
             ) {
 
                 Spacer( modifier = Modifier.weight(0.3f) )
-
                 Text(
-                    text = userRoleText,
+                    text = "$userRoleText / $username",
                     style = MaterialTheme.typography.titleMedium,
                     color = Color.White
 
@@ -92,6 +92,7 @@ fun HomeTopBar(
 fun HomeTopBarPreview() {
     PPMPROYECTOTheme {
         HomeTopBar(
+            username = "Juan",
             userRoleText = "Estudiante",
             profilePictureUrl = "",
             onOpenDrawer = {}

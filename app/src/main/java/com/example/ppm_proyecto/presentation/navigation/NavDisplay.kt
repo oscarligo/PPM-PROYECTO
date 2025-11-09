@@ -1,6 +1,7 @@
 package com.example.ppm_proyecto.presentation.navigation
 
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -41,11 +42,26 @@ fun AppNavigation(userRole: String) {
         else -> Login
     }
 
-    val backStack = remember { mutableStateListOf<AppDestination>(startScreen) } // Backstack
+    val backStack = remember { mutableStateListOf(startScreen) } // Backstack
 
-    fun navigate(to: AppDestination) { backStack.add(to) }
+    fun navigate(to: AppDestination) {
+        // Limpiar stack al ir a pantallas raíz para evitar estados antiguos
+        if (to is StudentHome || to is TeacherHome || to is Login) {
+            backStack.clear()
+        }
+        backStack.add(to)
+    }
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    fun back() { if (backStack.size > 1) backStack.removeLast() }
+    fun back() {
+
+        if (backStack.size > 1) {
+            backStack.removeLast()
+        }
+    }
+
+    BackHandler(enabled = backStack.size > 1) {
+        back()
+    }
 
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
 

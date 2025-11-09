@@ -17,11 +17,15 @@ import com.example.ppm_proyecto.presentation.navigation.AppNavigation
 import com.example.ppm_proyecto.presentation.theme.PPMPROYECTOTheme
 import dagger.hilt.android.AndroidEntryPoint
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.tasks.await
+import com.example.ppm_proyecto.domain.usecase.user.GetUserUseCase
+import com.example.ppm_proyecto.domain.models.user.UserRole
+import javax.inject.Inject
+import com.example.ppm_proyecto.core.util.Result
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject lateinit var getUserUseCase: GetUserUseCase
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -34,15 +38,11 @@ class MainActivity : ComponentActivity() {
                     if (uid == null) {
                         userRole = "" // No autenticado: navegar a Login
                     } else {
-                        userRole = try {
-                            val doc = FirebaseFirestore.getInstance()
-                                .collection("users")
-                                .document(uid)
-                                .get()
-                                .await()
-                            doc.getString("role") ?: "Student"
-                        } catch (t: Throwable) {
-                            "Student"
+                        val userResult = getUserUseCase(uid)
+                        userRole = when (userResult) {
+                            is Result.Ok -> userResult.value?.role?.name ?: UserRole.Student.name
+
+                            is Result.Err -> UserRole.Student.name
                         }
                     }
                 }

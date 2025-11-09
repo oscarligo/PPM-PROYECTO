@@ -98,6 +98,8 @@ val sampleCourseAlgebra = Course(
     teacherId = "teacher-2",
 )
 
+
+
 // Lista de cursos consolidada
 val sampleCourses: List<Course> = listOf(sampleCourseMobile, sampleCourseAlgebra)
 

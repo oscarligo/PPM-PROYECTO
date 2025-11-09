@@ -53,10 +53,6 @@ fun StatisticsCard(
             val centerLabel = "$attendancePercent%"
 
             Column(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = "Asistencia general",
-                    style = MaterialTheme.typography.titleSmall
-                )
 
                 Row(
                     modifier = Modifier
