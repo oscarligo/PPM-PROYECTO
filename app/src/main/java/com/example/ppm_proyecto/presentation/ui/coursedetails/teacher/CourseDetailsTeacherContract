@@ -1,0 +1,54 @@
+package com.example.ppm_proyecto.presentation.ui.coursedetails.teacher
+
+import com.example.ppm_proyecto.domain.models.course.AttendanceRecord
+import com.example.ppm_proyecto.domain.models.course.Enrollment
+import com.example.ppm_proyecto.presentation.navigation.routes.AppDestination
+import java.time.LocalDate
+
+/**
+ * Contrato del módulo de detalles de curso (CourseDetailTeacher).
+ */
+class CourseDetailsTeacherContract {
+
+     // Estado general de la pantalla.
+     
+    data class State(
+        val courseId: String = "",
+
+        val courseName: String = "",
+
+        // Fecha seleccionada (para ver asistencia)
+        val selectedDate: LocalDate = LocalDate.now(),
+
+        // Lista de estudiantes inscritos en el curso
+        val students: List<Enrollment> = emptyList(),
+
+        // Registros de asistencia por fecha
+        val attendanceRecords: List<AttendanceRecord> = emptyList(),
+
+        val isLoading: Boolean = false,
+
+        val error: String = "",
+        // Indica si ya se cargaron los datos iniciales
+        val loaded: Boolean = false
+    )
+
+    // Acciones posibles (intents) que el usuario puede realizar en la pantalla.
+     
+    sealed class Intent {
+        // Cambiar la fecha seleccionada
+        data class SelectDate(val date: LocalDate) : Intent()
+
+        // Editar la asistencia de los estudiantes
+        data object EditAttendance : Intent()
+
+        // Guardar los cambios de asistencia
+        data object SaveAttendance : Intent()
+
+        // Volver a la pantalla anterior
+        data object NavigateBack : Intent()
+
+        // Refrescar manualmente los datos
+        data object Refresh : Intent()
+    }
+}
