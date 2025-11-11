@@ -19,7 +19,7 @@ private fun ts(isoDate: String): Timestamp {
         Timestamp(date)
     } catch (_: ParseException) {
         Timestamp.now()
-    }
+    } 
 }
 
 val sampleNotifications: List<Notification> = listOf(
