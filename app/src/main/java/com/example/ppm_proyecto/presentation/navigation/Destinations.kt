@@ -15,7 +15,7 @@ data object StudentHome : AppDestination // Pantalla principal para estudiantes
 
 data object TeacherHome : AppDestination // Pantalla principal para profesores
 
-data class CourseDetails(val courseId: String) : AppDestination // Detalles del curso con ID
+data class CourseDetails(val courseId: String, val studentId: String) : AppDestination
 
 data object Profile : AppDestination // Pantalla de perfil de usuario
 
