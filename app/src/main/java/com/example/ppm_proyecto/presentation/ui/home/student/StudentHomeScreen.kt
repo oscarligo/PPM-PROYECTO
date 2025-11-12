@@ -50,6 +50,14 @@ fun StudentHomeScreen(
         viewModel.ensureLoaded()
     }
 
+    // Refrescar datos del usuario cada vez que esta pantalla se vuelve visible
+
+    LaunchedEffect(true) {
+        if (state.loaded) {
+            viewModel.onIntent(StudentContract.Intent.RefreshUserData, onNavigate)
+        }
+    }
+
     ModalNavigationDrawer(
         drawerState = state.isDrawerOpen,
         drawerContent = {

@@ -6,12 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ppm_proyecto.core.util.Result
-import com.example.ppm_proyecto.domain.models.course.Course
-import com.example.ppm_proyecto.domain.models.user.User
 import com.example.ppm_proyecto.domain.usecase.auth.CurrentUserUseCase
 import com.example.ppm_proyecto.domain.usecase.auth.LogoutUseCase
 import com.example.ppm_proyecto.domain.usecase.teacher.GetTeacherCoursesUseCase
-import com.example.ppm_proyecto.domain.usecase.teacher.GetTeacherProfileUseCase
 import com.example.ppm_proyecto.domain.usecase.user.GetUserUseCase
 import com.example.ppm_proyecto.presentation.navigation.routes.AppDestination
 import com.example.ppm_proyecto.presentation.navigation.routes.CourseDetails
@@ -19,6 +16,7 @@ import com.example.ppm_proyecto.presentation.navigation.routes.Login
 import com.example.ppm_proyecto.presentation.navigation.routes.Profile
 import com.example.ppm_proyecto.presentation.navigation.routes.SecuritySettings
 import com.example.ppm_proyecto.presentation.navigation.routes.AppearanceSettings
+
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -29,7 +27,6 @@ import javax.inject.Inject
 @HiltViewModel
 class TeacherHomeViewModel @Inject constructor(
     private val getTeacherCoursesUseCase: GetTeacherCoursesUseCase,
-    private val getTeacherProfileUseCase: GetTeacherProfileUseCase,
     private val currentUserUseCase: CurrentUserUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val getUserUseCase: GetUserUseCase
@@ -78,7 +75,7 @@ class TeacherHomeViewModel @Inject constructor(
             }
 
             //  Cargar perfil del maestro
-            when (val resProfile = getTeacherProfileUseCase(teacherId)) {
+            when (val resProfile = getUserUseCase(teacherId)) {
                 is Result.Ok -> {
                     state.value = state.value.copy(user = resProfile.value)
                 }

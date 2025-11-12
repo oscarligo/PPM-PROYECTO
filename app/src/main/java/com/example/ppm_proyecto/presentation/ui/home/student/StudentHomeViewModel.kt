@@ -57,6 +57,7 @@ class StudentHomeViewModel @Inject constructor(
             is StudentContract.Intent.ViewNotification -> state.value = state.value.copy(selectedNotification = intent.notificationId)
             StudentContract.Intent.ToggleDrawer -> openDrawer()
             StudentContract.Intent.CloseDrawer -> closeDrawer()
+            StudentContract.Intent.RefreshUserData -> loadStudentData()
         }
     }
 
@@ -97,7 +98,7 @@ class StudentHomeViewModel @Inject constructor(
                 state.value = state.value.copy(error = "Error procesando asistencias: ${t.message}")
             }
 
-            // Notificaciones reales (si falla, usar de muestra)
+            // Notificaciones
             when (val notifRes = getStudentNotificationsUseCase(studentId)) {
                 is Result.Ok -> {
                     val list = notifRes.value

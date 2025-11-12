@@ -10,4 +10,6 @@ interface UserRepository {
     suspend fun createUser(user: User): Result<Unit>
     // Nuevo: obtener las notificaciones del usuario
     suspend fun getUserNotifications(userId: String): List<Notification>
+    // Actualizar perfil del usuario (solo nombre y foto)
+    suspend fun updateUserProfile(userId: String, name: String, profileImageUrl: String): Result<Unit>
 }

@@ -14,8 +14,11 @@ class UserRepositoryImpl @Inject constructor(
         remote.fetchUser(userId)
 
     override suspend fun createUser(user: User): Result<Unit> =
-        remote.upsertUser(user)
+        remote.createUser(user)
 
     override suspend fun getUserNotifications(userId: String): List<Notification> =
         remote.fetchUserNotifications(userId)
+
+    override suspend fun updateUserProfile(userId: String, name: String, profileImageUrl: String): Result<Unit> =
+        remote.updateUserProfile(userId, name, profileImageUrl)
 }

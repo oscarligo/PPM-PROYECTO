@@ -10,7 +10,6 @@ import javax.inject.Inject
 class TeacherRepositoryImpl @Inject constructor(
     private val remote: TeacherRemoteDataSource
 ) : TeacherRepository {
-    override suspend fun getTeacher(teacherId: String): User? = remote.getTeacher(teacherId)
     override suspend fun getCourses(teacherId: String): List<Course> = remote.fetchTeacherCourses(teacherId)
     override suspend fun getSessionsForCourse(courseId: String): List<CourseSession> = remote.fetchSessions(courseId)
     override suspend fun createCourse(course: Course): Boolean = remote.createCourse(course)
@@ -21,6 +20,5 @@ class TeacherRepositoryImpl @Inject constructor(
     override suspend fun deleteSession(courseId: String, sessionId: String): Boolean = remote.deleteSession(courseId, sessionId)
     override suspend fun markStudentAttendance(courseId: String, sessionId: String, studentId: String, status: String): Boolean = remote.markStudentAttendance(courseId, sessionId, studentId, status)
     override suspend fun getSessionAttendance(courseId: String, sessionId: String): List<SessionAttendance> = remote.getSessionAttendance(courseId, sessionId)
-    override suspend fun updateTeacherProfile(user: User): Boolean = remote.updateTeacherProfile(user)
     override suspend fun getCourseStudents(courseId: String): List<User> = remote.getCourseStudents(courseId)
 }

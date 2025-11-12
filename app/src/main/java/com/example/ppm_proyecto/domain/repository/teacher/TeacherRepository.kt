@@ -8,8 +8,6 @@ import com.example.ppm_proyecto.domain.models.user.User
 
 interface TeacherRepository {
 
-    suspend fun getTeacher(teacherId: String): User?
-
     suspend fun getCourses(teacherId: String): List<Course>
     suspend fun getSessionsForCourse(courseId: String): List<CourseSession>
     suspend fun createCourse(course: Course): Boolean
@@ -23,7 +21,6 @@ interface TeacherRepository {
     suspend fun markStudentAttendance(courseId: String, sessionId: String, studentId: String, status: String): Boolean
     suspend fun getSessionAttendance(courseId: String, sessionId: String): List<SessionAttendance>
 
-    suspend fun updateTeacherProfile(user: User): Boolean
 
     suspend fun getCourseStudents(courseId: String): List<User>
 }

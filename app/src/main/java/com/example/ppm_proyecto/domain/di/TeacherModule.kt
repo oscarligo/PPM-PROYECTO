@@ -9,11 +9,9 @@ import com.example.ppm_proyecto.domain.usecase.teacher.DeleteSessionUseCase
 import com.example.ppm_proyecto.domain.usecase.teacher.GetCourseSessionsForTeacherUseCase
 import com.example.ppm_proyecto.domain.usecase.teacher.GetCourseStudentsUseCase
 import com.example.ppm_proyecto.domain.usecase.teacher.GetTeacherCoursesUseCase
-import com.example.ppm_proyecto.domain.usecase.teacher.GetTeacherProfileUseCase
 import com.example.ppm_proyecto.domain.usecase.teacher.MarkStudentAttendanceUseCase
 import com.example.ppm_proyecto.domain.usecase.teacher.UpdateCourseUseCase
 import com.example.ppm_proyecto.domain.usecase.teacher.UpdateSessionUseCase
-import com.example.ppm_proyecto.domain.usecase.teacher.UpdateTeacherProfileUseCase
 import com.example.ppm_proyecto.domain.usecase.teacher.GetSessionAttendanceUseCase
 import dagger.Module
 import dagger.Provides
@@ -57,12 +55,6 @@ object TeacherModule {
 
     @Provides
     fun provideGetSessionAttendanceUseCase(repo: TeacherRepository): GetSessionAttendanceUseCase = GetSessionAttendanceUseCase(repo)
-
-    @Provides
-    fun provideGetTeacherProfileUseCase(repo: TeacherRepository): GetTeacherProfileUseCase = GetTeacherProfileUseCase(repo)
-
-    @Provides
-    fun provideUpdateTeacherProfileUseCase(repo: TeacherRepository): UpdateTeacherProfileUseCase = UpdateTeacherProfileUseCase(repo)
 
     @Provides
     fun provideGetCourseStudentsUseCase(repo: TeacherRepository): GetCourseStudentsUseCase = GetCourseStudentsUseCase(repo)

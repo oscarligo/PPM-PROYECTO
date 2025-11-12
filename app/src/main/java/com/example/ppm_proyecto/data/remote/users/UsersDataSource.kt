@@ -17,7 +17,7 @@ class UsersDataSource @Inject constructor(
     suspend fun fetchUser(userId: String): User? =
         db.collection("users").document(userId).get().await().toObject(User::class.java)
 
-    suspend fun upsertUser(user: User): Result<Unit> = try {
+    suspend fun createUser(user: User): Result<Unit> = try {
         db.collection("users").document(user.id).set(user).await()
         Result.Ok(Unit)
     } catch (t: Throwable) { Result.Err(t) }
@@ -31,4 +31,14 @@ class UsersDataSource @Inject constructor(
             .await()
             .toObjects(Notification::class.java)
     } catch (_: Throwable) { emptyList() }
+
+    suspend fun updateUserProfile(userId: String, name: String, profileImageUrl: String): Result<Unit> = try {
+        val updatedData = mapOf(
+            "name" to name,
+            "profileImageUrl" to profileImageUrl
+        )
+        db.collection("users").document(userId).update(updatedData).await()
+        Result.Ok(Unit)
+    } catch (t: Throwable) { Result.Err(t) }
+
 }

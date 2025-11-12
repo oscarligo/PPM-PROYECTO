@@ -1,5 +1,6 @@
 package com.example.ppm_proyecto.presentation.components
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -74,8 +75,11 @@ fun HomeTopBar(
                     placeholder = painterResource(R.drawable.userholder2),
                     error = painterResource(R.drawable.userholder2),
                     modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape),
+                        .size(35.dp)
+                        .clip(CircleShape)
+                        .border(1.5.dp, Color.White, CircleShape)
+                    ,
+
                     contentScale = ContentScale.Crop
                 )
 

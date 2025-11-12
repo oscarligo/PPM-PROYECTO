@@ -18,6 +18,8 @@ object  StudentContract {
         data class ViewNotification(val notificationId: String) : Intent // Ver una notificación específica
         data object ToggleDrawer: Intent // Abrir o cerrar el drawer lateral
         data object CloseDrawer: Intent // Cerrar el drawer lateral
+
+        data object RefreshUserData: Intent // Nuevo: refrescar datos del usuario
     }
 
     data class State (

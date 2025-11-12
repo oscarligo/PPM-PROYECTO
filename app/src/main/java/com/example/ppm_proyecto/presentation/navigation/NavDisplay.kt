@@ -22,8 +22,10 @@ import com.example.ppm_proyecto.presentation.navigation.routes.SecuritySettings
 import com.example.ppm_proyecto.presentation.navigation.routes.StudentHome
 import com.example.ppm_proyecto.presentation.navigation.routes.TeacherHome
 import com.example.ppm_proyecto.presentation.ui.home.student.StudentHomeScreen
+import com.example.ppm_proyecto.presentation.ui.home.teacher.TeacherHomeScreen
 import com.example.ppm_proyecto.presentation.ui.login.LoginScreen
 import com.example.ppm_proyecto.presentation.ui.register.RegisterScreen
+import com.example.ppm_proyecto.presentation.ui.settings.profile.ProfileScreen
 
 
 /*=======================================================================
@@ -73,9 +75,9 @@ fun AppNavigation(userRole: String) {
                     is Login -> NavEntry(key) { LoginScreen { dest -> navigate(dest) } }
                     is Register -> NavEntry(key) { RegisterScreen { dest -> navigate(dest) } }
                     is StudentHome -> NavEntry(key) { StudentHomeScreen { dest -> navigate(dest) } }
-                    is TeacherHome -> NavEntry(key) { /* TeacherHomeScreen.kt */ }
+                    is TeacherHome -> NavEntry(key) { TeacherHomeScreen { dest -> navigate(dest) } }
                     is CourseDetails -> NavEntry(key) { /* CourseDetailsScreen */ }
-                    is Profile -> NavEntry(key) { /* ProfileScreen */ }
+                    is Profile -> NavEntry(key) { ProfileScreen(onNavigateBack = { back() }) }
                     is SecuritySettings -> NavEntry(key) { /* SecuritySettingsScreen */ }
                     is AppearanceSettings -> NavEntry(key) { /* AppearanceSettingsScreen */ }
                 }

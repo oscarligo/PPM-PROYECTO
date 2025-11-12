@@ -108,21 +108,6 @@ class TeacherRemoteDataSource @Inject constructor(
         return snap.toObjects(SessionAttendance::class.java)
     }
 
-    // Actualiza el perfil de un profesor
-
-    suspend fun updateTeacherProfile(user: User): Boolean = try {
-        require(user.id.isNotEmpty()) { "User id is required" }
-        db.collection("users").document(user.id).set(user).await()
-        true
-    } catch (_: Exception) { false }
-
-    // Obtiene el perfil de un profesor
-
-    suspend fun getTeacher(teacherId: String): User? {
-        val snap = db.collection("users").document(teacherId).get().await()
-        return snap.toObject(User::class.java)
-    }
-
     // Obtiene la lista de estudiantes inscritos en un curso específico
 
     suspend fun getCourseStudents(courseId: String): List<User> {

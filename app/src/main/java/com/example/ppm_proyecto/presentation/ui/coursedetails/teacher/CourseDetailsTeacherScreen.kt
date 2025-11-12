@@ -43,7 +43,7 @@ fun CourseDetailsTeacherScreen(
             ) {
 
                 Text(
-                    text = teacherName,
+                    text = state.teacherName,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
