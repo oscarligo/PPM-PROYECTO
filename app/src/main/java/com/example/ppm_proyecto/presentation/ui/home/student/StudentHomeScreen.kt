@@ -30,6 +30,8 @@ import com.example.ppm_proyecto.presentation.components.AppNavigationDrawer
 import com.example.ppm_proyecto.presentation.components.HomeTopBar
 import com.example.ppm_proyecto.presentation.components.StatisticsCard
 import com.example.ppm_proyecto.presentation.components.LoadingOverlay
+import com.example.ppm_proyecto.presentation.components.JoinCourseDialog
+import com.example.ppm_proyecto.presentation.components.AppAB
 import com.example.ppm_proyecto.presentation.navigation.routes.AppDestination
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -81,6 +83,11 @@ fun StudentHomeScreen(
                         viewModel.onIntent(StudentContract.Intent.ToggleDrawer, onNavigate)
                     }
                 )
+            },
+            floatingActionButton = {
+                AppAB(
+                    onClick = { viewModel.onIntent(StudentContract.Intent.OpenJoinCourseDialog, onNavigate) }
+                )
             }
         ) { innerPadding ->
             Box(Modifier.fillMaxSize()) {
@@ -127,6 +134,17 @@ fun StudentHomeScreen(
                 }
             }
         }
+
+        // Diálogo para unirse a un curso
+        JoinCourseDialog(
+            showDialog = state.showJoinCourseDialog,
+            courseId = state.joinCourseId,
+            onCourseIdChange = { viewModel.onIntent(StudentContract.Intent.UpdateJoinCourseId(it), onNavigate) },
+            onDismiss = { viewModel.onIntent(StudentContract.Intent.CloseJoinCourseDialog, onNavigate) },
+            onConfirm = { viewModel.onIntent(StudentContract.Intent.JoinCourse, onNavigate) },
+            isLoading = state.joinCourseLoading,
+            errorMessage = state.joinCourseError
+        )
     }
 }
 

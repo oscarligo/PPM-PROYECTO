@@ -17,6 +17,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import com.example.ppm_proyecto.domain.usecase.student.GetStudentCoursesUseCase
 import com.example.ppm_proyecto.domain.usecase.student.GetStudentAttendanceUseCase
+import com.example.ppm_proyecto.domain.usecase.student.EnrollInCourseUseCase
 import kotlinx.coroutines.launch
 import com.example.ppm_proyecto.core.util.Result
 import com.example.ppm_proyecto.domain.usecase.auth.LogoutUseCase
@@ -30,6 +31,7 @@ import com.example.ppm_proyecto.domain.usecase.user.GetStudentNotificationsUseCa
 class StudentHomeViewModel @Inject constructor(
     private val getStudentCoursesUseCase: GetStudentCoursesUseCase,
     private val getStudentAttendanceUseCase: GetStudentAttendanceUseCase,
+    private val enrollInCourseUseCase: EnrollInCourseUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val currentUserUseCase: CurrentUserUseCase,
     private val getUserUseCase: GetUserUseCase,
@@ -58,6 +60,10 @@ class StudentHomeViewModel @Inject constructor(
             StudentContract.Intent.ToggleDrawer -> openDrawer()
             StudentContract.Intent.CloseDrawer -> closeDrawer()
             StudentContract.Intent.RefreshUserData -> loadStudentData()
+            StudentContract.Intent.OpenJoinCourseDialog -> openJoinCourseDialog()
+            StudentContract.Intent.CloseJoinCourseDialog -> closeJoinCourseDialog()
+            is StudentContract.Intent.UpdateJoinCourseId -> updateJoinCourseId(intent.courseId)
+            StudentContract.Intent.JoinCourse -> joinCourse()
         }
     }
 
@@ -143,5 +149,75 @@ class StudentHomeViewModel @Inject constructor(
 
     private fun closeDrawer() {
         state.value = state.value.copy(isDrawerOpen = DrawerState(DrawerValue.Closed))
+    }
+
+    private fun openJoinCourseDialog() {
+        state.value = state.value.copy(
+            showJoinCourseDialog = true,
+            joinCourseId = "",
+            joinCourseError = ""
+        )
+    }
+
+    private fun closeJoinCourseDialog() {
+        state.value = state.value.copy(
+            showJoinCourseDialog = false,
+            joinCourseId = "",
+            joinCourseError = "",
+            joinCourseLoading = false
+        )
+    }
+
+    private fun updateJoinCourseId(courseId: String) {
+        state.value = state.value.copy(joinCourseId = courseId)
+    }
+
+    private fun joinCourse() {
+        viewModelScope.launch {
+            state.value = state.value.copy(joinCourseLoading = true, joinCourseError = "")
+            val studentId = currentUserUseCase()
+            if (studentId == null) {
+                state.value = state.value.copy(
+                    joinCourseLoading = false,
+                    joinCourseError = "Sesión no encontrada"
+                )
+                return@launch
+            }
+
+            val courseId = state.value.joinCourseId.trim()
+            if (courseId.isBlank()) {
+                state.value = state.value.copy(
+                    joinCourseLoading = false,
+                    joinCourseError = "Debes ingresar un ID de curso"
+                )
+                return@launch
+            }
+
+            when (val result = enrollInCourseUseCase(studentId, courseId)) {
+                is Result.Ok -> {
+                    if (result.value) {
+                        // Éxito, cerrar diálogo y recargar cursos
+                        state.value = state.value.copy(
+                            showJoinCourseDialog = false,
+                            joinCourseId = "",
+                            joinCourseLoading = false,
+                            joinCourseError = ""
+                        )
+                        loadStudentData() // Recargar para mostrar el nuevo curso
+                    } else {
+                        state.value = state.value.copy(
+                            joinCourseLoading = false,
+                            joinCourseError = "No se pudo unir al curso"
+                        )
+                    }
+                }
+                is Result.Err -> {
+                    state.value = state.value.copy(
+                        joinCourseLoading = false,
+                        joinCourseError = result.throwable.message ?: "Error desconocido"
+                    )
+                }
+            }
+        }
     }
 }

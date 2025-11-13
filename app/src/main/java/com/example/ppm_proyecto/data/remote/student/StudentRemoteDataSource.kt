@@ -59,7 +59,30 @@ class StudentRemoteDataSource @Inject constructor(
     }
 
     // Inscribe a un estudiante en un curso
-    suspend fun enroll(studentId: String, courseId: String): Boolean = try {
+    suspend fun enroll(studentId: String, courseId: String): Boolean {
+        // Verificar si el curso existe
+        val courseSnapshot = db.collection("courses")
+            .document(courseId)
+            .get()
+            .await()
+
+        if (!courseSnapshot.exists()) {
+            throw Exception("El curso con ID '$courseId' no existe")
+        }
+
+        // Verificar si el estudiante ya está inscrito
+        val enrollmentSnapshot = db.collection("users")
+            .document(studentId)
+            .collection("enrollments")
+            .document(courseId)
+            .get()
+            .await()
+
+        if (enrollmentSnapshot.exists()) {
+            throw Exception("Ya estás inscrito en este curso")
+        }
+
+        // Inscribir al estudiante
         val enrollmentData = mapOf("courseId" to courseId)
         db.collection("users")
             .document(studentId)
@@ -67,8 +90,9 @@ class StudentRemoteDataSource @Inject constructor(
             .document(courseId)
             .set(enrollmentData)
             .await()
-        true
-    } catch (_: Exception) { false }
+
+        return true
+    }
 
     // Elimina la inscripción de un estudiante en un curso
     suspend fun drop(studentId: String, courseId: String): Boolean = try {

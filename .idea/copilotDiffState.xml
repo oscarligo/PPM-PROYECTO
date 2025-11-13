@@ -20,14 +20,6 @@
             </PendingDiffInfo>
           </value>
         </entry>
-        <entry key="$PROJECT_DIR$/app/src/main/java/com/example/ppm_proyecto/domain/usecase/user/GetUserUseCase.kt">
-          <value>
-            <PendingDiffInfo>
-              <option name="filePath" value="$PROJECT_DIR$/app/src/main/java/com/example/ppm_proyecto/domain/usecase/user/GetUserUseCase.kt" />
-              <option name="updatedContent" value="package com.example.ppm_proyecto.domain.usecase.user&#10;&#10;import com.example.ppm_proyecto.domain.models.user.User&#10;import com.example.ppm_proyecto.domain.repository.user.UserRepository&#10;import javax.inject.Inject&#10;&#10;class GetUserUseCase @Inject constructor(&#10;    private val repository: UserRepository&#10;) {&#10;    suspend operator fun invoke(userId: String): User? = repository.getUser(userId)&#10;}&#10;" />
-            </PendingDiffInfo>
-          </value>
-        </entry>
         <entry key="$PROJECT_DIR$/app/src/main/java/com/example/ppm_proyecto/presentation/ui/components/BasicScreens.kt">
           <value>
             <PendingDiffInfo>

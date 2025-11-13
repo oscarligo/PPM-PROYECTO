@@ -42,7 +42,7 @@ class CourseDetailsTeacherViewModel : ViewModel() {
                     val teacherName = courseDoc.getString("teacherName") ?: "Desconocido"
 
                     // Traer lista de estudiantes dentro del curso
-                    //Trae con su respectiva asistencia 
+                    //Trae con su respectiva asistencia
                     db.collection("courses").document(courseId)
                         .collection("students")
                         .get()

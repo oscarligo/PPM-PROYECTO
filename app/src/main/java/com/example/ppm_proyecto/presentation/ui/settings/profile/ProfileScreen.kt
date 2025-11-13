@@ -64,6 +64,15 @@ fun ProfileScreen(
         }
     }
 
+    // Nuevo: Manejar evento de copiar al portapapeles desde el estado
+    LaunchedEffect(state.clipboardText) {
+        state.clipboardText?.let { text ->
+            copyToClipboard(context, text)
+            Toast.makeText(context, "Copiado al portapapeles", Toast.LENGTH_SHORT).show()
+            viewModel.onIntent(ProfileContract.Intent.ClearClipboardEvent)
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -134,7 +143,7 @@ fun ProfileScreen(
                         label = "ID de Usuario",
                         value = state.user?.id ?: "",
                         icon = Icons.Default.AccountCircle,
-                        context = context
+                        onCopy = { copyToClipboard(context, it) }
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -147,7 +156,7 @@ fun ProfileScreen(
                             else -> "Desconocido"
                         },
                         icon = Icons.Default.Person,
-                        context = context
+                        onCopy = { copyToClipboard(context, it) }
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -156,7 +165,7 @@ fun ProfileScreen(
                         label = "Fecha de Creación",
                         value = formatDate(state.user?.createdAt?.toDate()),
                         icon = Icons.Default.DateRange,
-                        context = context
+                        onCopy = { copyToClipboard(context, it) }
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -278,7 +287,7 @@ fun ReadOnlyFieldWithCopy(
     label: String,
     value: String,
     icon: ImageVector,
-    context: Context
+    onCopy: (String) -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -317,12 +326,7 @@ fun ReadOnlyFieldWithCopy(
                 )
             }
 
-            IconButton(
-                onClick = {
-                    copyToClipboard(context, value)
-                    Toast.makeText(context, "Copiado al portapapeles", Toast.LENGTH_SHORT).show()
-                }
-            ) {
+            IconButton(onClick = { onCopy(value) }) {
                 Icon(
                     Icons.Default.MailOutline,
                     contentDescription = "Copiar",

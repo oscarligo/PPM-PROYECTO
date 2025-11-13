@@ -17,6 +17,7 @@ class TeacherRemoteDataSource @Inject constructor(
 ) {
 
     // Obtiene la lista de cursos asignados a un profesor
+    // Su usecase es GetTeacherCoursesUseCase
     suspend fun fetchTeacherCourses(teacherId: String): List<Course> {
         val snap = db.collection("courses")
             .whereEqualTo("teacherId", teacherId)
@@ -26,6 +27,7 @@ class TeacherRemoteDataSource @Inject constructor(
     }
 
     // Obtiene las sesiones de un curso específico
+    // Su usecase es GetSessions
     suspend fun fetchSessions(courseId: String): List<CourseSession> {
         val snap = db.collection("courses")
             .document(courseId)
@@ -36,7 +38,7 @@ class TeacherRemoteDataSource @Inject constructor(
     }
 
     // Crea un nuevo curso
-
+    // Su usecase es CreateCourseUseCase
     suspend fun createCourse(course: Course): Boolean = try {
         val id = course.id.ifEmpty { db.collection("courses").document().id }
         db.collection("courses").document(id).set(course.copy(id = id)).await()

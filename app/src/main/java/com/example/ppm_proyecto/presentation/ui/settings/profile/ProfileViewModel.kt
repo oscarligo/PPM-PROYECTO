@@ -31,7 +31,12 @@ class ProfileViewModel @Inject constructor(
             is ProfileContract.Intent.SetName -> state.value = state.value.copy(name = intent.value)
             is ProfileContract.Intent.SetProfileImageUrl -> state.value = state.value.copy(profileImageUrl = intent.value)
             ProfileContract.Intent.SaveChanges -> saveChanges()
-            is ProfileContract.Intent.CopyToClipboard -> { /* Handled in UI */ }
+            is ProfileContract.Intent.CopyToClipboard -> {
+                state.value = state.value.copy(clipboardText = intent.text)
+            }
+            ProfileContract.Intent.ClearClipboardEvent -> {
+                state.value = state.value.copy(clipboardText = null)
+            }
             ProfileContract.Intent.OpenImageUrlDialog -> {
                 state.value = state.value.copy(
                     showImageUrlDialog = true,

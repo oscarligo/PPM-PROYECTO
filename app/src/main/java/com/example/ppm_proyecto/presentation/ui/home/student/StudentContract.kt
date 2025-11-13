@@ -20,6 +20,11 @@ object  StudentContract {
         data object CloseDrawer: Intent // Cerrar el drawer lateral
 
         data object RefreshUserData: Intent // Nuevo: refrescar datos del usuario
+
+        data object OpenJoinCourseDialog: Intent // Abrir diálogo para unirse a un curso
+        data object CloseJoinCourseDialog: Intent // Cerrar diálogo para unirse a un curso
+        data class UpdateJoinCourseId(val courseId: String): Intent // Actualizar el ID del curso a unirse
+        data object JoinCourse: Intent // Unirse a un curso
     }
 
     data class State (
@@ -39,6 +44,12 @@ object  StudentContract {
 
         // Gráficos de las estadísticas
         val attendancePercent: Int = 0, // Porcentaje de asistencia
+
+        // Estado del diálogo de unirse a curso
+        val showJoinCourseDialog: Boolean = false,
+        val joinCourseId: String = "",
+        val joinCourseLoading: Boolean = false,
+        val joinCourseError: String = "",
     )
 
     sealed interface Effect {
