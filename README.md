@@ -7,6 +7,10 @@ Para ello, se planea el uso de sensores físicos que detectan la presencia de lo
 La app permitirá a los docentes registrar la asistencia de forma rápida y precisa, evitando errores manuales, mientras que los estudiantes podrán visualizar su historial de asistencias y notificaciones.
 
 
+Avances para la revisión de la entrega 4: 
+
+https://youtu.be/0IVfnxlzv3M
+
 
 
 ## Estructura del Proyecto
