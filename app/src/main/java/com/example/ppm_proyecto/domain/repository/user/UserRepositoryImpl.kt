@@ -21,4 +21,8 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun updateUserProfile(userId: String, name: String, profileImageUrl: String): Result<Unit> =
         remote.updateUserProfile(userId, name, profileImageUrl)
+
+    override suspend fun updateUserEmail(userId: String, newEmail: String): Result<Unit> =
+    remote.updateUserEmail(userId, newEmail)
+
 }
