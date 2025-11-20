@@ -25,6 +25,7 @@ import com.example.ppm_proyecto.presentation.navigation.routes.Login
 import com.example.ppm_proyecto.domain.usecase.auth.CurrentUserUseCase
 import com.example.ppm_proyecto.domain.usecase.user.GetUserUseCase
 import com.example.ppm_proyecto.domain.usecase.user.GetStudentNotificationsUseCase
+import com.example.ppm_proyecto.domain.usecase.nfc.MarkAttendanceViaTeacherTagUseCase
 
 
 @HiltViewModel
@@ -36,6 +37,7 @@ class StudentHomeViewModel @Inject constructor(
     private val currentUserUseCase: CurrentUserUseCase,
     private val getUserUseCase: GetUserUseCase,
     private val getStudentNotificationsUseCase: GetStudentNotificationsUseCase,
+    private val markAttendanceViaTeacherTagUseCase: MarkAttendanceViaTeacherTagUseCase,
 ) : ViewModel() {
     var state = mutableStateOf(StudentContract.State())
         private set
@@ -68,6 +70,7 @@ class StudentHomeViewModel @Inject constructor(
             StudentContract.Intent.CloseJoinCourseDialog -> closeJoinCourseDialog()
             is StudentContract.Intent.UpdateJoinCourseId -> updateJoinCourseId(intent.courseId)
             StudentContract.Intent.JoinCourse -> joinCourse()
+            is StudentContract.Intent.MarkAttendanceViaTag -> markAttendanceViaTag(intent.nfcTagId)
         }
     }
 
@@ -226,6 +229,58 @@ class StudentHomeViewModel @Inject constructor(
                     state.value = state.value.copy(
                         joinCourseLoading = false,
                         joinCourseError = result.throwable.message ?: "Error desconocido"
+                    )
+                }
+            }
+        }
+    }
+
+    /**
+     * Marca la asistencia del estudiante cuando detecta un tag NFC del profesor
+     */
+    private fun markAttendanceViaTag(nfcTagId: String) {
+        viewModelScope.launch {
+            // Limpiar mensajes anteriores
+            state.value = state.value.copy(
+                nfcAttendanceMessage = "",
+                nfcAttendanceSuccess = false
+            )
+
+            val studentId = currentUserUseCase()
+            if (studentId == null) {
+                state.value = state.value.copy(
+                    nfcAttendanceMessage = "Sesión no encontrada",
+                    nfcAttendanceSuccess = false
+                )
+                return@launch
+            }
+
+            // Mostrar mensaje de procesando
+            state.value = state.value.copy(
+                nfcAttendanceMessage = "Procesando asistencia...",
+                nfcAttendanceSuccess = false
+            )
+
+            when (val result = markAttendanceViaTeacherTagUseCase(nfcTagId, studentId)) {
+                is Result.Ok -> {
+                    if (result.value) {
+                        state.value = state.value.copy(
+                            nfcAttendanceMessage = "✓ Asistencia marcada exitosamente",
+                            nfcAttendanceSuccess = true
+                        )
+                        // Recargar datos para actualizar estadísticas
+                        loadStudentData()
+                    } else {
+                        state.value = state.value.copy(
+                            nfcAttendanceMessage = "No hay sesión activa en este momento",
+                            nfcAttendanceSuccess = false
+                        )
+                    }
+                }
+                is Result.Err -> {
+                    state.value = state.value.copy(
+                        nfcAttendanceMessage = "Error: ${result.throwable.message ?: "Error desconocido"}",
+                        nfcAttendanceSuccess = false
                     )
                 }
             }

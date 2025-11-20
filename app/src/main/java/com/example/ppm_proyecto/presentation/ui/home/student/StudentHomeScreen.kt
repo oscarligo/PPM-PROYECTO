@@ -1,6 +1,7 @@
 package com.example.ppm_proyecto.presentation.ui.home.student
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,14 +17,20 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.ppm_proyecto.core.util.NfcHelper
 import com.example.ppm_proyecto.domain.models.course.Course
 import com.example.ppm_proyecto.domain.models.user.Notification
 import com.example.ppm_proyecto.presentation.components.AppNavigationDrawer
@@ -46,6 +53,31 @@ fun StudentHomeScreen(
     onNavigate: (AppDestination) -> Unit,
 ) {
     val state by viewModel.state
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val context = LocalContext.current
+    val activity = context as? Activity
+
+    // Detectar tags NFC para marcar asistencia automáticamente
+    LaunchedEffect(activity) {
+        activity?.intent?.let { intent ->
+            if (NfcHelper.isNfcIntent(intent)) {
+                val tag = NfcHelper.getTagFromIntent(intent)
+                tag?.let {
+                    val tagId = NfcHelper.getTagId(it)
+                    // Marcar asistencia automáticamente
+                    viewModel.onIntent(StudentContract.Intent.MarkAttendanceViaTag(tagId), onNavigate)
+                }
+            }
+        }
+    }
+
+    // Mostrar mensaje de asistencia NFC en Snackbar
+    LaunchedEffect(state.nfcAttendanceMessage) {
+        if (state.nfcAttendanceMessage.isNotBlank()) {
+            snackbarHostState.showSnackbar(state.nfcAttendanceMessage)
+        }
+    }
 
     // Cargar datos al entrar en la pantalla (si aún no se cargaron)
     LaunchedEffect(Unit) {
@@ -53,7 +85,6 @@ fun StudentHomeScreen(
     }
 
     // Refrescar datos del usuario cada vez que esta pantalla se vuelve visible
-
     LaunchedEffect(true) {
         if (state.loaded) {
             viewModel.onIntent(StudentContract.Intent.RefreshUserData, onNavigate)
@@ -88,6 +119,23 @@ fun StudentHomeScreen(
                 AppAB(
                     onClick = { viewModel.onIntent(StudentContract.Intent.OpenJoinCourseDialog, onNavigate) }
                 )
+            },
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState) { data ->
+                    Snackbar(
+                        snackbarData = data,
+                        containerColor = if (state.nfcAttendanceSuccess) {
+                            MaterialTheme.colorScheme.tertiaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.errorContainer
+                        },
+                        contentColor = if (state.nfcAttendanceSuccess) {
+                            MaterialTheme.colorScheme.onTertiaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.onErrorContainer
+                        }
+                    )
+                }
             }
         ) { innerPadding ->
             Box(Modifier.fillMaxSize()) {
@@ -279,11 +327,9 @@ fun CoursesList(
 
 @Preview
 @Composable
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 fun StudentHomeScreenPreview() {
     StudentHomeScreen(
         onNavigate = {}
     )
-
 }

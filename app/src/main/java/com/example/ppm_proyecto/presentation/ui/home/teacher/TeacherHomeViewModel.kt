@@ -13,7 +13,8 @@ import com.example.ppm_proyecto.domain.usecase.teacher.GetCourseSessionsForTeach
 import com.example.ppm_proyecto.domain.usecase.teacher.GetSessionAttendanceUseCase
 import com.example.ppm_proyecto.domain.usecase.teacher.CreateCourseUseCase
 import com.example.ppm_proyecto.domain.usecase.user.GetUserUseCase
-import com.example.ppm_proyecto.domain.usecase.user.UpdateUserNfcTagUseCase
+import com.example.ppm_proyecto.domain.usecase.nfc.LinkNfcTagToTeacherUseCase
+import com.example.ppm_proyecto.domain.usecase.nfc.IsNfcTagAlreadyLinkedUseCase
 import com.example.ppm_proyecto.domain.models.course.AttendanceStatus
 import com.example.ppm_proyecto.domain.models.course.Course
 import com.example.ppm_proyecto.domain.models.course.SessionAttendance
@@ -40,7 +41,8 @@ class TeacherHomeViewModel @Inject constructor(
     private val currentUserUseCase: CurrentUserUseCase,
     private val logoutUseCase: LogoutUseCase,
     private val getUserUseCase: GetUserUseCase,
-    private val updateUserNfcTagUseCase: UpdateUserNfcTagUseCase
+    private val linkNfcTagToTeacherUseCase: LinkNfcTagToTeacherUseCase,
+    private val isNfcTagAlreadyLinkedUseCase: IsNfcTagAlreadyLinkedUseCase
 ) : ViewModel() {
 
     // Estado de la pantalla
@@ -335,7 +337,28 @@ class TeacherHomeViewModel @Inject constructor(
                 return@launch
             }
 
-            when (val result = updateUserNfcTagUseCase(teacherId, nfcTagId)) {
+            // Verificar si el tag ya está vinculado a otro usuario
+            when (val checkResult = isNfcTagAlreadyLinkedUseCase(nfcTagId)) {
+                is Result.Ok -> {
+                    if (checkResult.value && state.value.user?.nfcTagId != nfcTagId) {
+                        state.value = state.value.copy(
+                            linkNfcTagLoading = false,
+                            linkNfcTagError = "Este tag NFC ya está vinculado a otro usuario"
+                        )
+                        return@launch
+                    }
+                }
+                is Result.Err -> {
+                    state.value = state.value.copy(
+                        linkNfcTagLoading = false,
+                        linkNfcTagError = "Error verificando disponibilidad del tag: ${checkResult.throwable.message}"
+                    )
+                    return@launch
+                }
+            }
+
+            // Vincular el tag
+            when (val result = linkNfcTagToTeacherUseCase(teacherId, nfcTagId)) {
                 is Result.Ok -> {
                     state.value = state.value.copy(
                         linkNfcTagLoading = false,

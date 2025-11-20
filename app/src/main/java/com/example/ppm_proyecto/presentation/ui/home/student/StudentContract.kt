@@ -25,6 +25,9 @@ object  StudentContract {
         data object CloseJoinCourseDialog: Intent // Cerrar diálogo para unirse a un curso
         data class UpdateJoinCourseId(val courseId: String): Intent // Actualizar el ID del curso a unirse
         data object JoinCourse: Intent // Unirse a un curso
+
+        // Nuevos intents para NFC
+        data class MarkAttendanceViaTag(val nfcTagId: String): Intent // Marcar asistencia con tag NFC
     }
 
     data class State (
@@ -50,6 +53,10 @@ object  StudentContract {
         val joinCourseId: String = "",
         val joinCourseLoading: Boolean = false,
         val joinCourseError: String = "",
+
+        // Estado de marcado de asistencia por NFC
+        val nfcAttendanceMessage: String = "",
+        val nfcAttendanceSuccess: Boolean = false,
     )
 
     sealed interface Effect {

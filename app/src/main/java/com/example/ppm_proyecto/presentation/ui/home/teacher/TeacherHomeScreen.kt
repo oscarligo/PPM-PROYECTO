@@ -1,5 +1,7 @@
 package com.example.ppm_proyecto.presentation.ui.home.teacher
 
+import android.app.Activity
+import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -7,10 +9,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.ppm_proyecto.core.util.NfcHelper
 import com.example.ppm_proyecto.domain.models.course.Course
 import com.example.ppm_proyecto.presentation.components.AppNavigationDrawer
 import com.example.ppm_proyecto.presentation.components.HomeTopBar
@@ -33,6 +37,25 @@ fun TeacherHomeScreen(
     val state by viewModel.state
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    val context = LocalContext.current
+    val activity = context as? Activity
+
+    // Manejar nuevos intents (para NFC)
+    LaunchedEffect(activity) {
+        activity?.intent?.let { intent ->
+            if (NfcHelper.isNfcIntent(intent)) {
+                val tag = NfcHelper.getTagFromIntent(intent)
+                tag?.let {
+                    val tagId = NfcHelper.getTagId(it)
+                    // Si el diálogo está abierto, actualizar el ID
+                    if (state.showLinkNfcTagDialog) {
+                        viewModel.onIntent(TeacherContract.Intent.UpdateNfcTagId(tagId), onNavigate)
+                    }
+                }
+            }
+        }
+    }
 
     // Cargar datos al entrar en la pantalla (si aún no se cargaron)
     LaunchedEffect(Unit) {
