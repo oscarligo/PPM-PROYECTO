@@ -14,6 +14,8 @@ import com.example.ppm_proyecto.domain.usecase.user.GetUserUseCase
 import com.example.ppm_proyecto.domain.usecase.auth.ReauthenticateUseCase
 import com.example.ppm_proyecto.domain.usecase.auth.UpdateEmailUseCase
 import com.example.ppm_proyecto.domain.usecase.auth.UpdatePasswordUseCase
+import com.example.ppm_proyecto.presentation.ui.settings.security.SecurityContract.SecuritySettingsState
+import com.example.ppm_proyecto.presentation.ui.settings.security.SecurityContract.SecuritySettingsIntent
 
 @HiltViewModel
 class SecuritySettingsViewModel @Inject constructor(
@@ -48,16 +50,16 @@ class SecuritySettingsViewModel @Inject constructor(
     fun onIntent(intent: SecuritySettingsIntent) {
         when (intent) {
             is SecuritySettingsIntent.ChangeNewEmail ->
-                state = state.copy(newEmail = intent.value)
+                state = state.copy(newEmail = intent.value, errorMessage = null, successMessage = null)
 
             is SecuritySettingsIntent.ChangeOldPassword ->
-                state = state.copy(oldPassword = intent.value)
+                state = state.copy(oldPassword = intent.value, errorMessage = null, successMessage = null)
 
             is SecuritySettingsIntent.ChangeNewPassword ->
-                state = state.copy(newPassword = intent.value)
+                state = state.copy(newPassword = intent.value, errorMessage = null, successMessage = null)
 
             is SecuritySettingsIntent.ChangeConfirmPassword ->
-                state = state.copy(confirmPassword = intent.value)
+                state = state.copy(confirmPassword = intent.value, errorMessage = null, successMessage = null)
 
             SecuritySettingsIntent.SubmitEmailChange ->
                 changeEmail()
@@ -78,8 +80,13 @@ class SecuritySettingsViewModel @Inject constructor(
             return
         }
 
+        if (pass.isBlank()) {
+            state = state.copy(errorMessage = "Ingresa tu contraseña actual")
+            return
+        }
+
         viewModelScope.launch {
-            state = state.copy(isLoading = true)
+            state = state.copy(isLoading = true, errorMessage = null, successMessage = null)
 
             // 1. Reautenticar
             when (reauthenticateUseCase(email, pass)) {
@@ -97,8 +104,10 @@ class SecuritySettingsViewModel @Inject constructor(
             when (updateEmailUseCase(userId, newEmail)) {
                 is Result.Ok -> state = state.copy(
                     isLoading = false,
-                    successMessage = "Correo actualizado",
-                    currentEmail = newEmail
+                    successMessage = "Correo actualizado exitosamente",
+                    currentEmail = newEmail,
+                    newEmail = "",
+                    oldPassword = ""
                 )
                 is Result.Err -> state = state.copy(
                     isLoading = false,
@@ -109,22 +118,34 @@ class SecuritySettingsViewModel @Inject constructor(
     }
 
     private fun changePassword() {
+        if (state.newPassword.isBlank()) {
+            state = state.copy(errorMessage = "La contraseña no puede estar vacía")
+            return
+        }
+
+        if (state.newPassword.length < 6) {
+            state = state.copy(errorMessage = "La contraseña debe tener al menos 6 caracteres")
+            return
+        }
+
         if (state.newPassword != state.confirmPassword) {
             state = state.copy(errorMessage = "Las contraseñas no coinciden")
             return
         }
 
         viewModelScope.launch {
-            state = state.copy(isLoading = true)
+            state = state.copy(isLoading = true, errorMessage = null, successMessage = null)
 
             when (updatePasswordUseCase(state.newPassword)) {
                 is Result.Ok -> state = state.copy(
                     isLoading = false,
-                    successMessage = "Contraseña actualizada"
+                    successMessage = "Contraseña actualizada exitosamente",
+                    newPassword = "",
+                    confirmPassword = ""
                 )
                 is Result.Err -> state = state.copy(
                     isLoading = false,
-                    errorMessage = "Error al actualizar contraseña"
+                    errorMessage = "Error al actualizar la contraseña"
                 )
             }
         }
