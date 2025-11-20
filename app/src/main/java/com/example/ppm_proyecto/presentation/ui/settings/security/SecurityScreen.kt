@@ -41,6 +41,7 @@ fun SecuritySettingsScreen(
     var showPasswordEditor by remember { mutableStateOf(false) }
 
     var passwordVisible by remember { mutableStateOf(false) }
+    var currentPasswordVisible by remember { mutableStateOf(false) }
     var newPasswordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
@@ -50,7 +51,6 @@ fun SecuritySettingsScreen(
         state.successMessage?.let { msg ->
             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
             // cerrar editores cuando la operación haya sido exitosa
-            showEmailEditor = false
             showPasswordEditor = false
         }
         state.errorMessage?.let { msg ->
@@ -145,6 +145,27 @@ fun SecuritySettingsScreen(
                 }
 
             } else {
+                // Campo: contraseña actual (necesaria para reautenticación)
+                OutlinedTextField(
+                    value = state.oldPassword,
+                    onValueChange = { viewModel.onIntent(SecuritySettingsIntent.ChangeOldPassword(it)) },
+                    label = { Text("Contraseña actual") },
+                    placeholder = { Text("Ingresa tu contraseña actual") },
+                    visualTransformation = if (currentPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { currentPasswordVisible = !currentPasswordVisible }) {
+                            Icon(
+                                imageVector = Icons.Default.Lock,
+                                contentDescription = if (currentPasswordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                            )
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !state.isLoading
+                )
+
+                Spacer(Modifier.height(12.dp))
+
                 // Formulario de cambio de contraseña
                 OutlinedTextField(
                     value = state.newPassword,

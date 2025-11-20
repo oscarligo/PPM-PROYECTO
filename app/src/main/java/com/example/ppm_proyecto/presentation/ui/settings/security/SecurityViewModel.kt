@@ -137,12 +137,31 @@ class SecuritySettingsViewModel @Inject constructor(
         viewModelScope.launch {
             state = state.copy(isLoading = true, errorMessage = null, successMessage = null)
 
+            // 1. Verificar que haya proporcionado la contraseña actual para reautenticación
+            val currentPassword = state.oldPassword
+            if (currentPassword.isBlank()) {
+                state = state.copy(isLoading = false, errorMessage = "Ingresa tu contraseña actual para confirmar")
+                return@launch
+            }
+
+            // 2. Reautenticar con el email mostrado y la contraseña actual
+            val email = state.currentEmail
+            when (val reauthRes = reauthenticateUseCase(email, currentPassword)) {
+                is Result.Err -> {
+                    state = state.copy(isLoading = false, errorMessage = reauthRes.throwable.message ?: "Error al reautenticar")
+                    return@launch
+                }
+                else -> {}
+            }
+
+            // 3. Cambiar la contraseña
             when (val pwRes = updatePasswordUseCase(state.newPassword)) {
                 is Result.Ok -> state = state.copy(
                     isLoading = false,
                     successMessage = "Contraseña actualizada exitosamente",
                     newPassword = "",
-                    confirmPassword = ""
+                    confirmPassword = "",
+                    oldPassword = ""
                 )
                 is Result.Err -> state = state.copy(
                     isLoading = false,
