@@ -18,16 +18,25 @@ https://youtu.be/0IVfnxlzv3M
 ```
 app/src/main/java/com/example/ppm_proyecto
 │
-├─ data/            # Capa de datos, obtiene y guarda información desde distintas fuentes
-│  ├─ local/        # Almacenamiento local.
-│  └─ remote/       # Comunicación con APIs o servicios externos.
-├─ domain/          # Lógica de la aplicación 
-│  ├─ model/        # Modelos principales del la aplicación
-│  ├─ repository/   # Interfaces que definen cómo acceder a los datos
-│  └─ usecase/      # Casos de uso
-└─ presentation/    # Interfaz de usuario (Jetpack Compose + patrón MVI)
-   ├─ components/   # Elementos UI reutilizables (botones, barras, gráficos, etc.)
-   ├─ navigation/   # Definición de rutas y grafo de navegación
-   ├─ theme/        # Estilos visuales: colores, tipografías y temas
-   └─ ui/           # Pantallas principales (cada módulo con su Screen, State, Intent, VM)
+├─ core/                          // Utilidades para todo el proyecto
+│  ├─ di/                         // Configuración de inyección de dependencias con Hilt
+│  ├─ nfc/                        // Utildades para comunicación con tags NFC
+│  └─ util/                       // Un resultado genérico, para manejo de errores
+│
+├─ data/                          // Capa de datos
+│  ├─ local/                      // Room, caché local
+│  ├─ remote/                     // Firebase y Firestore
+│
+├─ domain/                        // Lógica de negocio
+|  ├─ di/                         // Módulos de inyección de dependencias por módulo
+│  ├─ model/                      // Entidades core (Student, Professor, Tag, AttendanceRecord, Session)
+│  ├─ repository/                 // Interfaces de repositorios (AttendanceRepository, SecurityRepository, NfcRepository)
+│  └─ usecase/                    // Casos de uso organizados por módulo (attendance, security, nfc)
+│
+└─ presentation/                  // Interfaz de usuario (Jetpack Compose + MVI)
+   ├─ components/                 // Componentes UI reutilizables (botones, cards, barras)
+   ├─ navigation/                 // BackStack de navegación y definición de rutas
+   ├─ theme/                      // Sistema de diseño (colores, tipografías, temas)
+   └─ ui/                         // Pantallas por funcionalidad (attendance, security, nfc)
+                                  // Cada pantalla con Screen, State, Intent, ViewModel
    ```
