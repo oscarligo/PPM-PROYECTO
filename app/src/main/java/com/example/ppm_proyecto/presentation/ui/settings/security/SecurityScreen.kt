@@ -38,7 +38,6 @@ fun SecuritySettingsScreen(
 ) {
     val state = viewModel.state
 
-    var showEmailEditor by remember { mutableStateOf(false) }
     var showPasswordEditor by remember { mutableStateOf(false) }
 
     var passwordVisible by remember { mutableStateOf(false) }
@@ -50,6 +49,9 @@ fun SecuritySettingsScreen(
     LaunchedEffect(state.successMessage, state.errorMessage) {
         state.successMessage?.let { msg ->
             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            // cerrar editores cuando la operación haya sido exitosa
+            showEmailEditor = false
+            showPasswordEditor = false
         }
         state.errorMessage?.let { msg ->
             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
@@ -87,94 +89,21 @@ fun SecuritySettingsScreen(
             )
             Spacer(Modifier.height(8.dp))
 
-            // Correo actual (si no se edita)
-            if (!showEmailEditor) {
-                ElevatedCard(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "Correo actual",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            text = state.currentEmail,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(12.dp))
-
-                Button(
-                    onClick = { showEmailEditor = true },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Cambiar correo")
-                }
-            } else {
-                // Formulario de cambio de correo
-                OutlinedTextField(
-                    value = state.newEmail,
-                    onValueChange = { viewModel.onIntent(SecuritySettingsIntent.ChangeNewEmail(it)) },
-                    label = { Text("Nuevo correo") },
-                    placeholder = { Text("ejemplo@correo.com") },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !state.isLoading
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                // Campo: contraseña actual para confirmar
-                OutlinedTextField(
-                    value = state.oldPassword,
-                    onValueChange = { viewModel.onIntent(SecuritySettingsIntent.ChangeOldPassword(it)) },
-                    label = { Text("Contraseña actual") },
-                    placeholder = { Text("Confirma tu contraseña") },
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
-                            )
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !state.isLoading
-                )
-
-                Spacer(Modifier.height(16.dp))
-
-                Button(
-                    onClick = {
-                        viewModel.onIntent(SecuritySettingsIntent.SubmitEmailChange)
-                        showEmailEditor = false
-                    },
-                    enabled = !state.isLoading,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    if (state.isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.padding(8.dp),
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    } else {
-                        Text("Guardar cambios")
-                    }
-                }
-
-                OutlinedButton(
-                    onClick = {
-                        showEmailEditor = false
-                        viewModel.onIntent(SecuritySettingsIntent.ChangeNewEmail(""))
-                        viewModel.onIntent(SecuritySettingsIntent.ChangeOldPassword(""))
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Cancelar")
+            // Mostrar correo en modo solo lectura (sin posibilidad de editar desde UI)
+            ElevatedCard(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "Correo",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = state.currentEmail,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
                 }
             }
 
@@ -261,7 +190,6 @@ fun SecuritySettingsScreen(
                 Button(
                     onClick = {
                         viewModel.onIntent(SecuritySettingsIntent.SubmitPasswordChange)
-                        showPasswordEditor = false
                     },
                     enabled = !state.isLoading,
                     modifier = Modifier.fillMaxWidth()

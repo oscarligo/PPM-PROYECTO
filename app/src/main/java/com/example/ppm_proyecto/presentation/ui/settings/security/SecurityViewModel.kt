@@ -89,11 +89,12 @@ class SecuritySettingsViewModel @Inject constructor(
             state = state.copy(isLoading = true, errorMessage = null, successMessage = null)
 
             // 1. Reautenticar
-            when (reauthenticateUseCase(email, pass)) {
+            when (val reauthRes = reauthenticateUseCase(email, pass)) {
                 is Result.Err -> {
+                    val msg = reauthRes.throwable.message ?: "Error al reautenticar"
                     state = state.copy(
                         isLoading = false,
-                        errorMessage = "Contraseña incorrecta"
+                        errorMessage = msg
                     )
                     return@launch
                 }
@@ -101,7 +102,7 @@ class SecuritySettingsViewModel @Inject constructor(
             }
 
             // 2. Actualizar email
-            when (updateEmailUseCase(userId, newEmail)) {
+            when (val updateRes = updateEmailUseCase(userId, newEmail)) {
                 is Result.Ok -> state = state.copy(
                     isLoading = false,
                     successMessage = "Correo actualizado exitosamente",
@@ -111,7 +112,7 @@ class SecuritySettingsViewModel @Inject constructor(
                 )
                 is Result.Err -> state = state.copy(
                     isLoading = false,
-                    errorMessage = "Error al actualizar el correo"
+                    errorMessage = updateRes.throwable.message ?: "Error al actualizar el correo"
                 )
             }
         }
@@ -136,7 +137,7 @@ class SecuritySettingsViewModel @Inject constructor(
         viewModelScope.launch {
             state = state.copy(isLoading = true, errorMessage = null, successMessage = null)
 
-            when (updatePasswordUseCase(state.newPassword)) {
+            when (val pwRes = updatePasswordUseCase(state.newPassword)) {
                 is Result.Ok -> state = state.copy(
                     isLoading = false,
                     successMessage = "Contraseña actualizada exitosamente",
@@ -145,7 +146,7 @@ class SecuritySettingsViewModel @Inject constructor(
                 )
                 is Result.Err -> state = state.copy(
                     isLoading = false,
-                    errorMessage = "Error al actualizar la contraseña"
+                    errorMessage = pwRes.throwable.message ?: "Error al actualizar contraseña"
                 )
             }
         }
