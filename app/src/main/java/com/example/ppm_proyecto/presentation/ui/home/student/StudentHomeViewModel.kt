@@ -3,7 +3,7 @@ package com.example.ppm_proyecto.presentation.ui.home.student
 import androidx.lifecycle.ViewModel
 import com.example.ppm_proyecto.presentation.navigation.routes.AppDestination
 import com.example.ppm_proyecto.presentation.navigation.routes.AppearanceSettings
-import com.example.ppm_proyecto.presentation.navigation.routes.CourseDetails
+import com.example.ppm_proyecto.presentation.navigation.routes.CourseDetailsStudent
 import com.example.ppm_proyecto.presentation.navigation.routes.SecuritySettings
 import com.example.ppm_proyecto.presentation.navigation.routes.Profile
 import com.example.ppm_proyecto.domain.models.course.AttendanceStatus
@@ -49,7 +49,11 @@ class StudentHomeViewModel @Inject constructor(
 
     fun onIntent(intent: StudentContract.Intent, navigate: (AppDestination) -> Unit) {
         when (intent) {
-            is StudentContract.Intent.SeeCourseDetails -> navigate(CourseDetails(intent.courseId))
+            is StudentContract.Intent.SeeCourseDetails -> {
+                viewModelScope.launch {
+                    navigateToCourseDetails(intent.courseId, navigate)
+                }
+            }
             StudentContract.Intent.OpenProfile -> navigate(Profile)
             StudentContract.Intent.OpenSecuritySettings -> navigate(SecuritySettings)
             StudentContract.Intent.OpenAppearanceSettings -> navigate(AppearanceSettings)
@@ -130,9 +134,9 @@ class StudentHomeViewModel @Inject constructor(
     }
 
     private fun calculateStats(attendanceRecords: List<SessionAttendance>) {
-        val present = attendanceRecords.count { it.status == AttendanceStatus.Present.name }
-        val absent = attendanceRecords.count { it.status == AttendanceStatus.Absent.name }
-        val late = attendanceRecords.count { it.status == AttendanceStatus.Late.name }
+        val present = attendanceRecords.count { it.status == AttendanceStatus.Present }
+        val absent = attendanceRecords.count { it.status == AttendanceStatus.Absent }
+        val late = attendanceRecords.count { it.status == AttendanceStatus.Late }
         val total = present + absent + late
         val percent = if (total > 0) ((present.toFloat() / total) * 100).roundToInt() else 0
         state.value = state.value.copy(
@@ -170,6 +174,13 @@ class StudentHomeViewModel @Inject constructor(
 
     private fun updateJoinCourseId(courseId: String) {
         state.value = state.value.copy(joinCourseId = courseId)
+    }
+
+     suspend private fun navigateToCourseDetails(courseId: String, navigate: (AppDestination) -> Unit) {
+        val studentId = currentUserUseCase()
+        if (studentId != null) {
+            navigate(CourseDetailsStudent(courseId, studentId))
+        }
     }
 
     private fun joinCourse() {

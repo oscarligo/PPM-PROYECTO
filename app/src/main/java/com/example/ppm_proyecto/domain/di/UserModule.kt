@@ -5,6 +5,7 @@ import com.example.ppm_proyecto.domain.repository.user.UserRepositoryImpl
 import com.example.ppm_proyecto.domain.usecase.user.GetUserUseCase
 import com.example.ppm_proyecto.domain.usecase.user.CreateUserUseCase
 import com.example.ppm_proyecto.domain.usecase.user.GetStudentNotificationsUseCase
+import com.example.ppm_proyecto.domain.usecase.user.UpdateUserNfcTagUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,4 +28,9 @@ object UserModule {
 
     @Provides
     fun provideGetStudentNotificationsUseCase(repo: UserRepository): GetStudentNotificationsUseCase = GetStudentNotificationsUseCase(repo)
+
+    @Provides
+    fun provideUpdateUserNfcTagUseCase(repo: UserRepository): UpdateUserNfcTagUseCase = UpdateUserNfcTagUseCase(repo)
 }
+
+

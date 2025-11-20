@@ -1,11 +1,14 @@
 package com.example.ppm_proyecto.data.remote.teacher
 
+import com.example.ppm_proyecto.domain.models.course.AttendanceStatus
 import com.example.ppm_proyecto.domain.models.course.Course
 import com.example.ppm_proyecto.domain.models.course.CourseSession
 import com.example.ppm_proyecto.domain.models.course.SessionAttendance
 import com.example.ppm_proyecto.domain.models.user.User
+import com.example.ppm_proyecto.domain.models.user.UserRole
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.Timestamp
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -92,7 +95,7 @@ class TeacherRemoteDataSource @Inject constructor(
             studentId = studentId,
             courseId = courseId,
             sessionId = sessionId,
-            status = status,
+            status = AttendanceStatus.valueOf(status),
             entryTime = com.google.firebase.Timestamp.now()
         )
         db.collection("users").document(studentId).collection("attendance").document(sessionId).set(att).await()
@@ -111,18 +114,77 @@ class TeacherRemoteDataSource @Inject constructor(
     }
 
     // Obtiene la lista de estudiantes inscritos en un curso específico
-
     suspend fun getCourseStudents(courseId: String): List<User> {
-        val enrollments = db.collectionGroup("enrollments")
-            .whereEqualTo("courseId", courseId)
-            .get()
-            .await()
-        val studentIds = enrollments.documents.mapNotNull { it.reference.parent.parent?.id }.distinct()
+        // Estrategia alternativa: obtener enrollments sin collectionGroup
+        // En lugar de usar collectionGroup, buscaremos directamente en la estructura
+
+        // Primero, obtenemos todos los usuarios
+        val allUsers = db.collection("users").get().await()
         val result = mutableListOf<User>()
-        for (sid in studentIds) {
-            val snap = db.collection("users").document(sid).get().await()
-            snap.toObject(User::class.java)?.let { result += it }
+
+        // Para cada usuario, verificamos si tiene un enrollment para este curso
+        for (userDoc in allUsers.documents) {
+            val userId = userDoc.id
+            val enrollmentExists = db.collection("users")
+                .document(userId)
+                .collection("enrollments")
+                .document(courseId)
+                .get()
+                .await()
+                .exists()
+
+            if (enrollmentExists) {
+                userDoc.toObject(User::class.java)?.let { user ->
+                    result += user.copy(id = userId)
+                }
+            }
         }
+
         return result
+    }
+
+    // Marcar asistencia buscando profesor por tag NFC y sesión activa
+    suspend fun markAttendanceViaTeacherTag(nfcTagId: String, studentId: String, status: String): Boolean {
+        return try {
+            if (nfcTagId.isBlank() || studentId.isBlank()) return false
+
+            // Buscar profesor con ese tag
+            val teacherSnap = db.collection("users")
+                .whereEqualTo("nfcTagId", nfcTagId)
+                .get()
+                .await()
+
+            val teacherDoc = teacherSnap.documents.firstOrNull { doc ->
+                doc.getString("role") == UserRole.Teacher.name
+            } ?: return false
+
+            val teacherId = teacherDoc.id
+
+            // Obtener cursos del profesor
+            val courses = fetchTeacherCourses(teacherId)
+            if (courses.isEmpty()) return false
+
+            val now = Timestamp.now().toDate()
+            var targetCourseId: String? = null
+            var targetSessionId: String? = null
+
+            // Buscar sesión activa dentro de [startTime, endTime]
+            loop@ for (course in courses) {
+                val sessions = fetchSessions(course.id)
+                for (s in sessions) {
+                    val start = s.startTime?.toDate()
+                    val end = s.endTime?.toDate()
+                    if (start != null && end != null && now.after(start) && now.before(end)) {
+                        targetCourseId = course.id
+                        targetSessionId = s.id
+                        break@loop
+                    }
+                }
+            }
+
+            if (targetCourseId == null || targetSessionId == null) return false
+
+            markStudentAttendance(targetCourseId!!, targetSessionId!!, studentId, status)
+        } catch (_: Exception) { false }
     }
 }

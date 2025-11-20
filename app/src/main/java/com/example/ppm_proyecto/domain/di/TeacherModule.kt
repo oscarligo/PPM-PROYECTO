@@ -13,6 +13,7 @@ import com.example.ppm_proyecto.domain.usecase.teacher.MarkStudentAttendanceUseC
 import com.example.ppm_proyecto.domain.usecase.teacher.UpdateCourseUseCase
 import com.example.ppm_proyecto.domain.usecase.teacher.UpdateSessionUseCase
 import com.example.ppm_proyecto.domain.usecase.teacher.GetSessionAttendanceUseCase
+import com.example.ppm_proyecto.domain.usecase.teacher.MarkStudentAttendanceViaTeacherTagUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -58,4 +59,7 @@ object TeacherModule {
 
     @Provides
     fun provideGetCourseStudentsUseCase(repo: TeacherRepository): GetCourseStudentsUseCase = GetCourseStudentsUseCase(repo)
+
+    @Provides
+    fun provideMarkStudentAttendanceViaTeacherTagUseCase(repo: TeacherRepository): MarkStudentAttendanceViaTeacherTagUseCase = MarkStudentAttendanceViaTeacherTagUseCase(repo)
 }

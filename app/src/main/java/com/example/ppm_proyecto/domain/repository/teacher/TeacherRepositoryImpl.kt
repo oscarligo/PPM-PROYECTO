@@ -19,6 +19,8 @@ class TeacherRepositoryImpl @Inject constructor(
     override suspend fun updateSession(courseId: String, session: CourseSession): Boolean = remote.updateSession(courseId, session)
     override suspend fun deleteSession(courseId: String, sessionId: String): Boolean = remote.deleteSession(courseId, sessionId)
     override suspend fun markStudentAttendance(courseId: String, sessionId: String, studentId: String, status: String): Boolean = remote.markStudentAttendance(courseId, sessionId, studentId, status)
+
     override suspend fun getSessionAttendance(courseId: String, sessionId: String): List<SessionAttendance> = remote.getSessionAttendance(courseId, sessionId)
     override suspend fun getCourseStudents(courseId: String): List<User> = remote.getCourseStudents(courseId)
+    override suspend fun markStudentAttendanceViaTeacherTag(nfcTagId: String, studentId: String, status: String): Boolean = remote.markAttendanceViaTeacherTag(nfcTagId, studentId, status)
 }

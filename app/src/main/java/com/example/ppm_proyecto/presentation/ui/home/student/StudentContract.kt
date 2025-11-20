@@ -35,8 +35,8 @@ object  StudentContract {
         val error: String = "", // Mensaje de error si ocurre alguno
         val selectedNotification: String? = null, // ID de la notificación seleccionada
         val isDrawerOpen: DrawerState = DrawerState(DrawerValue.Closed), // Estado del cajón de navegación
-        // Nuevo: indica si ya se cargaron los datos iniciales (para refrescar tras logout/login)
-        val loaded: Boolean = false,
+        val loaded: Boolean = false, // Indica si los datos fueron cargados
+
         // Estadísticas de asistencia
         val presentCount: Int = 0,
         val absentCount: Int = 0,

@@ -37,7 +37,7 @@ fun HomeTopBar(
     userRoleText: String,
     profilePictureUrl: String,
     onOpenDrawer: () -> Unit,
-
+    onLinkNfcTag: (() -> Unit)? = null
 ) {
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -87,6 +87,17 @@ fun HomeTopBar(
 
             }
         },
+        actions = {
+            if (onLinkNfcTag != null) {
+                IconButton(onClick = onLinkNfcTag) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_nfc),
+                        contentDescription = "Vincular NFC Tag",
+                        tint = Color.White
+                    )
+                }
+            }
+        }
     )
 }
 

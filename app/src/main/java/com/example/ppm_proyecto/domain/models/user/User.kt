@@ -11,4 +11,5 @@ data class User(
     val role: UserRole = UserRole.Student,
     val profileImageUrl: String = "",
     val createdAt: Timestamp = Timestamp.now(),
+    val nfcTagId : String = "",
 )

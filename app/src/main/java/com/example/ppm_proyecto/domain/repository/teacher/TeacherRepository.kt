@@ -21,6 +21,8 @@ interface TeacherRepository {
     suspend fun markStudentAttendance(courseId: String, sessionId: String, studentId: String, status: String): Boolean
     suspend fun getSessionAttendance(courseId: String, sessionId: String): List<SessionAttendance>
 
+    suspend fun markStudentAttendanceViaTeacherTag(nfcTagId: String, studentId: String, status: String): Boolean
+
 
     suspend fun getCourseStudents(courseId: String): List<User>
 }

@@ -127,7 +127,9 @@ fun StudentHomeScreen(
                         courses = state.courses,
                         isLoading = state.isLoading,
                         loaded = state.loaded
-                    )
+                    ) { courseId ->
+                        viewModel.onIntent(StudentContract.Intent.SeeCourseDetails(courseId), onNavigate)
+                    }
                 }
                 if (state.isLoading || !state.loaded) {
                     LoadingOverlay()
@@ -219,6 +221,7 @@ fun CoursesList(
     courses: List<Course>,
     isLoading: Boolean,
     loaded: Boolean,
+    onCourseClick: (String) -> Unit = {},
 ) {
     Text(
         text = "Mis cursos",
@@ -259,6 +262,7 @@ fun CoursesList(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 6.dp)
+                    .clickable { onCourseClick(course.id) }
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(text = course.name, style = MaterialTheme.typography.titleSmall)

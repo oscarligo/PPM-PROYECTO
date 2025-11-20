@@ -14,7 +14,8 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import com.example.ppm_proyecto.presentation.navigation.routes.AppDestination
 import com.example.ppm_proyecto.presentation.navigation.routes.AppearanceSettings
-import com.example.ppm_proyecto.presentation.navigation.routes.CourseDetails
+import com.example.ppm_proyecto.presentation.navigation.routes.CourseDetailsStudent
+import com.example.ppm_proyecto.presentation.navigation.routes.CourseDetailsTeacher
 import com.example.ppm_proyecto.presentation.navigation.routes.Login
 import com.example.ppm_proyecto.presentation.navigation.routes.Profile
 import com.example.ppm_proyecto.presentation.navigation.routes.Register
@@ -22,6 +23,7 @@ import com.example.ppm_proyecto.presentation.navigation.routes.SecuritySettings
 import com.example.ppm_proyecto.presentation.navigation.routes.StudentHome
 import com.example.ppm_proyecto.presentation.navigation.routes.TeacherHome
 import com.example.ppm_proyecto.presentation.ui.coursedetails.student.CourseDetailsStudentScreen
+import com.example.ppm_proyecto.presentation.ui.coursedetails.teacher.CourseDetailsTeacherScreen
 import com.example.ppm_proyecto.presentation.ui.home.student.StudentHomeScreen
 import com.example.ppm_proyecto.presentation.ui.home.teacher.TeacherHomeScreen
 import com.example.ppm_proyecto.presentation.ui.login.LoginScreen
@@ -45,7 +47,8 @@ fun AppNavigation(userRole: String) {
         else -> Login
     }
 
-    val backStack = remember { mutableStateListOf(startScreen) } // Backstack
+    // Usar userRole como key para reiniciar el backStack cuando cambia el rol
+    val backStack = remember(userRole) { mutableStateListOf(startScreen) }
 
     fun navigate(to: AppDestination) {
         // Limpiar stack al ir a pantallas raíz para evitar estados antiguos
@@ -77,11 +80,17 @@ fun AppNavigation(userRole: String) {
                     is Register -> NavEntry(key) { RegisterScreen { dest -> navigate(dest) } }
                     is StudentHome -> NavEntry(key) { StudentHomeScreen { dest -> navigate(dest) } }
                     is TeacherHome -> NavEntry(key) { TeacherHomeScreen { dest -> navigate(dest) } }
-                    is CourseDetails -> NavEntry(key) {
+                    is CourseDetailsStudent -> NavEntry(key) {
                         CourseDetailsStudentScreen(
                             courseId = key.courseId,
                             studentId = key.studentId,
                             onNavigate = { dest -> navigate(dest) },
+                        )
+                    }
+                    is CourseDetailsTeacher -> NavEntry(key) {
+                        CourseDetailsTeacherScreen(
+                            courseId = key.courseId,
+                            onNavigateBack = { back() }
                         )
                     }
                     is Profile -> NavEntry(key) { ProfileScreen(onNavigateBack = { back() }) }

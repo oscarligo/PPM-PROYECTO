@@ -21,6 +21,6 @@ data class SessionAttendance(
     val studentId: String = "",
     val courseId: String = "",       // Curso al que pertenece la sesión (faltaba para queries)
     val sessionId: String = "",      // Id de la sesión (documento de la sesión)
-    val status: String = AttendanceStatus.Absent.name,
+    val status: AttendanceStatus = AttendanceStatus.Absent,
     val entryTime: Timestamp? = Timestamp.now(),
 )

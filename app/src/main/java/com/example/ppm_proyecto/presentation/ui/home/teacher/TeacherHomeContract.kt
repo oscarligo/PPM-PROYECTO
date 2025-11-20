@@ -4,7 +4,6 @@ import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import com.example.ppm_proyecto.domain.models.course.Course
 import com.example.ppm_proyecto.domain.models.user.User
-import com.example.ppm_proyecto.presentation.navigation.routes.AppDestination
 
 /**
  * Este archivo define el contrato de TeacherHome.
@@ -22,6 +21,26 @@ class TeacherContract {
         val courses: List<Course> = emptyList(),
         val error: String = "",
         val isDrawerOpen: DrawerState = DrawerState(DrawerValue.Closed), //Estado de menu lateral
+
+        // Estadísticas de asistencia
+        val presentCount: Int = 0,
+        val absentCount: Int = 0,
+        val lateCount: Int = 0,
+        val attendancePercent: Int = 0, // Porcentaje de asistencia
+
+        // Estado del diálogo de crear curso
+        val showCreateCourseDialog: Boolean = false,
+        val createCourseName: String = "",
+        val createCourseDescription: String = "",
+        val createCourseLoading: Boolean = false,
+        val createCourseError: String = "",
+
+        // Estado del diálogo de vincular NFC tag
+        val showLinkNfcTagDialog: Boolean = false,
+        val nfcTagIdInput: String = "",
+        val linkNfcTagLoading: Boolean = false,
+        val linkNfcTagError: String = "",
+        val linkNfcTagSuccess: String = ""
     )
 
     /**
@@ -48,5 +67,33 @@ class TeacherContract {
 
         // Cerrar el menú 
         data object CloseDrawer : Intent()
+
+        // Abrir diálogo de crear curso
+        data object OpenCreateCourseDialog : Intent()
+
+        // Cerrar diálogo de crear curso
+        data object CloseCreateCourseDialog : Intent()
+
+        // Actualizar campos del formulario de crear curso
+        data class UpdateCourseName(val name: String) : Intent()
+        data class UpdateCourseDescription(val description: String) : Intent()
+
+        // Crear curso
+        data object CreateCourse : Intent()
+
+        // Refrescar datos
+        data object RefreshData : Intent()
+
+        // Abrir diálogo de vincular NFC tag
+        data object OpenLinkNfcTagDialog : Intent()
+
+        // Cerrar diálogo de vincular NFC tag
+        data object CloseLinkNfcTagDialog : Intent()
+
+        // Actualizar campo de ID de NFC tag
+        data class UpdateNfcTagId(val id: String) : Intent()
+
+        // Vincular NFC tag
+        data object LinkNfcTag : Intent()
     }
 }

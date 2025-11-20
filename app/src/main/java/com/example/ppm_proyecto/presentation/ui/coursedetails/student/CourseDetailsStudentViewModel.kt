@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import com.example.ppm_proyecto.domain.models.course.AttendanceStatus
 
 /**
  * ViewModel para la pantalla de detalles del curso (estudiante)
@@ -119,13 +120,10 @@ class CourseDetailsStudentViewModel @Inject constructor(
                                     val record = attendanceIterator.next()
                                     totalDays++
 
-                                    val status = record.status
-                                    if (status.equals("present", ignoreCase = true)) {
-                                        presentCount++
-                                    } else if (status.equals("absent", ignoreCase = true)) {
-                                        absentCount++
-                                    } else if (status.equals("late", ignoreCase = true)) {
-                                        lateCount++
+                                    when (record.status) {
+                                        AttendanceStatus.Present -> presentCount++
+                                        AttendanceStatus.Absent -> absentCount++
+                                        AttendanceStatus.Late -> lateCount++
                                     }
                                 }
 

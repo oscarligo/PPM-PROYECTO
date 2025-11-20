@@ -15,12 +15,12 @@ data object StudentHome : AppDestination // Pantalla principal para estudiantes
 
 data object TeacherHome : AppDestination // Pantalla principal para profesores
 
-data class CourseDetails(val courseId: String, val studentId: String) : AppDestination
+data class CourseDetailsStudent(val courseId: String, val studentId: String) : AppDestination
+
+data class CourseDetailsTeacher(val courseId: String) : AppDestination
 
 data object Profile : AppDestination // Pantalla de perfil de usuario
 
 data object SecuritySettings : AppDestination // Pantalla de configuración de seguridad
 
 data object AppearanceSettings : AppDestination // Pantalla de configuración de apariencia
-
-

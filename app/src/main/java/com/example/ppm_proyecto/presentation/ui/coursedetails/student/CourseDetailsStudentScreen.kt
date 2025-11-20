@@ -13,17 +13,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.ppm_proyecto.domain.models.course.AttendanceStatus
 import com.example.ppm_proyecto.domain.models.course.SessionAttendance
-import com.example.ppm_proyecto.presentation.components.AppNavigationDrawer
-import com.example.ppm_proyecto.presentation.components.HomeTopBar
 import com.example.ppm_proyecto.presentation.components.LoadingOverlay
 import com.example.ppm_proyecto.presentation.components.StatisticsCard
+import com.example.ppm_proyecto.presentation.components.SecondaryTopBar
 import com.example.ppm_proyecto.presentation.navigation.routes.AppDestination
-import com.example.ppm_proyecto.presentation.navigation.routes.AppearanceSettings
-import com.example.ppm_proyecto.presentation.navigation.routes.Login
-import com.example.ppm_proyecto.presentation.navigation.routes.Profile
-import com.example.ppm_proyecto.presentation.navigation.routes.SecuritySettings
 import com.example.ppm_proyecto.presentation.theme.*
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -38,11 +32,8 @@ fun CourseDetailsStudentScreen(
     studentId: String,
     onNavigate: (AppDestination) -> Unit,
     viewModel: CourseDetailsStudentViewModel = hiltViewModel(),
-
 ) {
     val state by viewModel.state.collectAsState()
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
 
     // Cargar datos cuando se monta la pantalla
     LaunchedEffect(courseId, studentId) {
@@ -51,105 +42,71 @@ fun CourseDetailsStudentScreen(
         )
     }
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            AppNavigationDrawer(
-                drawerState = drawerState,
-                onNavigateToProfile = { onNavigate(Profile) },
-                onNavigateToSecurity = { onNavigate(SecuritySettings) },
-                onNavigateToAppearance = { onNavigate(AppearanceSettings) },
-                onNavigateToLogin = { onNavigate(Login) },
-                onCloseDrawer = {
-                    scope.launch {
-                        drawerState.close()
-                    }
-                }
+    Scaffold(
+        topBar = {
+            SecondaryTopBar(
+                title = state.course?.name ?: "Detalles del Curso",
+                onNavigateBack = { onNavigate(com.example.ppm_proyecto.presentation.navigation.routes.StudentHome) }
             )
         }
-    ) {
-        Scaffold(
-            topBar = {
-                HomeTopBar(
-                    username = state.userName,
-                    userRoleText = "Estudiante",
-                    profilePictureUrl = state.userProfileUrl,
-                    onOpenDrawer = {
-                        scope.launch {
-                            drawerState.open()
+    ) { paddingValues ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Contenido principal
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp)
+            ) {
+                if (state.error != null) {
+                    // Mostrar error
+                    item {
+                        ErrorSection(
+                            error = state.error!!,
+                            onRetry = {
+                                viewModel.handleIntent(CourseDetailsStudentIntent.RetryLoading)
+                            }
+                        )
+                    }
+                } else if (!state.isLoading) {
+
+                    // Sección de Estadísticas usando el componente reutilizable
+
+                    item {
+                        StatisticsCard(
+                            presentCount = state.presentCount,
+                            absentCount = state.absentCount,
+                            lateCount = state.lateCount,
+                            attendancePercent = state.attendancePercent,
+                            title = "Estadísticas de Asistencia"
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Text(
+                            "Historial de Asistencia",
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    // Lista de Asistencias
+                    items(state.attendanceRecords) { record ->
+                        AttendanceCardFromFirebase(record = record)
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+
+                    // Mensaje si no hay registros
+                    if (state.attendanceRecords.isEmpty()) {
+                        item {
+                            EmptyStateSection()
                         }
                     }
-                )
+                }
             }
-        ) { paddingValues ->
-            Box(modifier = Modifier.fillMaxSize()) {
-                // Contenido principal
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .padding(16.dp)
-                ) {
-                    if (state.error != null) {
-                        // Mostrar error
-                        item {
-                            ErrorSection(
-                                error = state.error!!,
-                                onRetry = {
-                                    viewModel.handleIntent(CourseDetailsStudentIntent.RetryLoading)
-                                }
-                            )
-                        }
-                    } else if (!state.isLoading) {
-                        // Título del curso
-                        item {
-                            state.course?.let { course ->
-                                Text(
-                                    text = course.name,
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                            }
-                        }
 
-                        // Sección de Estadísticas usando el componente reutilizable
-                        item {
-                            StatisticsCard(
-                                presentCount = state.presentCount,
-                                absentCount = state.absentCount,
-                                lateCount = state.lateCount,
-                                attendancePercent = state.attendancePercent,
-                                title = "Estadísticas de Asistencia"
-                            )
-                            Spacer(modifier = Modifier.height(24.dp))
-                            Text(
-                                "Historial de Asistencia",
-                                style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-
-                        // Lista de Asistencias
-                        items(state.attendanceRecords) { record ->
-                            AttendanceCardFromFirebase(record = record)
-                            Spacer(modifier = Modifier.height(12.dp))
-                        }
-
-                        // Mensaje si no hay registros
-                        if (state.attendanceRecords.isEmpty()) {
-                            item {
-                                EmptyStateSection()
-                            }
-                        }
-                    }
-                }
-
-                // Loading Overlay
-                if (state.isLoading) {
-                    LoadingOverlay()
-                }
+            // Loading Overlay
+            if (state.isLoading) {
+                LoadingOverlay()
             }
         }
     }
@@ -160,12 +117,7 @@ fun CourseDetailsStudentScreen(
  */
 @Composable
 private fun AttendanceCardFromFirebase(record: SessionAttendance) {
-    val status = when (record.status.lowercase()) {
-        "present" -> AttendanceStatus.Present
-        "absent" -> AttendanceStatus.Absent
-        "late" -> AttendanceStatus.Late
-        else -> AttendanceStatus.Absent
-    }
+    val status: AttendanceStatus = record.status
 
     val backgroundColor = when (status) {
         AttendanceStatus.Present -> StatusPresentGreen

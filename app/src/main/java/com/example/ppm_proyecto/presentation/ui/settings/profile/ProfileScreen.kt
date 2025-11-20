@@ -328,7 +328,7 @@ fun ReadOnlyFieldWithCopy(
 
             IconButton(onClick = { onCopy(value) }) {
                 Icon(
-                    Icons.Default.MailOutline,
+                    Icons.Default.MoreVert,
                     contentDescription = "Copiar",
                     tint = MaterialTheme.colorScheme.primary
                 )

@@ -41,4 +41,12 @@ class UsersDataSource @Inject constructor(
         Result.Ok(Unit)
     } catch (t: Throwable) { Result.Err(t) }
 
+    // Actualizar  el ide del tag NFC vinculado a un usuario
+    suspend fun updateUserNfcTag(userId: String, nfcTagId: String): Result<Unit> = try {
+        val updatedData = mapOf(
+            "nfcTagId" to nfcTagId
+        )
+        db.collection("users").document(userId).update(updatedData).await()
+        Result.Ok(Unit)
+    } catch (t: Throwable) { Result.Err(t) }
 }

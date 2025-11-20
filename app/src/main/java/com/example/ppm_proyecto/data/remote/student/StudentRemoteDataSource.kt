@@ -3,6 +3,7 @@ package com.example.ppm_proyecto.data.remote.student
 import com.example.ppm_proyecto.domain.models.course.Course
 import com.example.ppm_proyecto.domain.models.course.CourseSession
 import com.example.ppm_proyecto.domain.models.course.SessionAttendance
+import com.example.ppm_proyecto.domain.models.course.AttendanceStatus
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -117,7 +118,7 @@ class StudentRemoteDataSource @Inject constructor(
             studentId = studentId,
             courseId = courseId,
             sessionId = sessionId,
-            status = status,
+            status = AttendanceStatus.valueOf(status),
             entryTime = com.google.firebase.Timestamp.now()
         )
         db.collection("users")

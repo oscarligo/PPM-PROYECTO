@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,18 +33,39 @@ class MainActivity : ComponentActivity() {
         setContent {
             PPMPROYECTOTheme {
                 var userRole: String? by remember { mutableStateOf(null) }
+                var authStateChanged by remember { mutableStateOf(0) }
 
-                LaunchedEffect(Unit) {
+                // Observar cambios en el estado de autenticación
+                LaunchedEffect(authStateChanged) {
                     val uid = FirebaseAuth.getInstance().currentUser?.uid
                     if (uid == null) {
                         userRole = "" // No autenticado: navegar a Login
                     } else {
                         val userResult = getUserUseCase(uid)
                         userRole = when (userResult) {
-                            is Result.Ok -> userResult.value?.role?.name ?: UserRole.Student.name
-
-                            is Result.Err -> UserRole.Student.name
+                            is Result.Ok -> {
+                                val user = userResult.value
+                                when (user?.role) {
+                                    UserRole.Teacher -> "Teacher"
+                                    UserRole.Student -> "Student"
+                                    null -> "" // Si no hay usuario, ir a Login
+                                }
+                            }
+                            is Result.Err -> "" // Si hay error, ir a Login en lugar de asumir Student
                         }
+                    }
+                }
+
+                // Listener para detectar cambios de autenticación
+
+                DisposableEffect(Unit) {
+                    val authStateListener = FirebaseAuth.AuthStateListener {
+                        authStateChanged++
+                    }
+                    FirebaseAuth.getInstance().addAuthStateListener(authStateListener)
+
+                    onDispose {
+                        FirebaseAuth.getInstance().removeAuthStateListener(authStateListener)
                     }
                 }
 
