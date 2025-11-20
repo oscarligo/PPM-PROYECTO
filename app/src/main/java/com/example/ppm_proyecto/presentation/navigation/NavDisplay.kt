@@ -29,6 +29,7 @@ import com.example.ppm_proyecto.presentation.ui.home.teacher.TeacherHomeScreen
 import com.example.ppm_proyecto.presentation.ui.login.LoginScreen
 import com.example.ppm_proyecto.presentation.ui.register.RegisterScreen
 import com.example.ppm_proyecto.presentation.ui.settings.profile.ProfileScreen
+import com.example.ppm_proyecto.presentation.ui.settings.security.SecuritySettingsScreen
 
 
 /*=======================================================================
@@ -57,9 +58,9 @@ fun AppNavigation(userRole: String) {
         }
         backStack.add(to)
     }
+
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     fun back() {
-
         if (backStack.size > 1) {
             backStack.removeLast()
         }
@@ -94,7 +95,9 @@ fun AppNavigation(userRole: String) {
                         )
                     }
                     is Profile -> NavEntry(key) { ProfileScreen(onNavigateBack = { back() }) }
-                    is SecuritySettings -> NavEntry(key) { /* SecuritySettingsScreen */ }
+                    is SecuritySettings -> NavEntry(key) {
+                        SecuritySettingsScreen(onNavigateBack = { back() })
+                    }
                     is AppearanceSettings -> NavEntry(key) { /* AppearanceSettingsScreen */ }
                 }
             }

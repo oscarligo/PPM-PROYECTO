@@ -12,6 +12,10 @@ interface UserRepository {
     suspend fun getUserNotifications(userId: String): List<Notification>
     // Actualizar perfil del usuario (solo nombre y foto)
     suspend fun updateUserProfile(userId: String, name: String, profileImageUrl: String): Result<Unit>
-    // Nuevo: actualizar el tag NFC vinculado a la cuenta
+    // actualizar el tag NFC vinculado a la cuenta
     suspend fun updateUserNfcTag(userId: String, nfcTagId: String): Result<Unit>
+    //Actualizar el email
+    suspend fun updateUserEmail(userId: String, newEmail: String): Result<Unit>
+
+
 }

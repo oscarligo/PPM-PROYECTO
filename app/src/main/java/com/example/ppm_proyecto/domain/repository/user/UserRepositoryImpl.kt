@@ -24,4 +24,8 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun updateUserNfcTag(userId: String, nfcTagId: String): Result<Unit> =
         remote.updateUserNfcTag(userId, nfcTagId)
+
+    override suspend fun updateUserEmail(userId: String, newEmail: String): Result<Unit> =
+    remote.updateUserEmail(userId, newEmail)
+
 }

@@ -49,4 +49,12 @@ class UsersDataSource @Inject constructor(
         db.collection("users").document(userId).update(updatedData).await()
         Result.Ok(Unit)
     } catch (t: Throwable) { Result.Err(t) }
+
+
+    suspend fun updateUserEmail(userId: String, newEmail: String): Result<Unit> = try {
+        db.collection("users").document(userId)
+            .update("email", newEmail).await()
+        Result.Ok(Unit)
+    } catch (t: Throwable) { Result.Err(t) }
+
 }
