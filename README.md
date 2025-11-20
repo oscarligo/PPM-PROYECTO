@@ -1,4 +1,8 @@
 # Nombre pendiente
+## Integrantes: 
+*24880 Oscar Rompich
+*24952 Marcela Castillo
+*24376 José Rivera
 
 ## Descripción
 
