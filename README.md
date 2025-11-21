@@ -4,7 +4,7 @@
 *24952 Marcela Castillo
 *24376 José Rivera
 
-<img width="550" height="550" alt="logo" src="https://github.com/user-attachments/assets/2b3f3075-d76a-4a25-a5a9-dc41001842ae" />
+<img width="100" height="100" alt="logo" src="https://github.com/user-attachments/assets/2b3f3075-d76a-4a25-a5a9-dc41001842ae" />
 
 ## Descripción
 
