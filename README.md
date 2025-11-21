@@ -1,4 +1,4 @@
-# Nombre pendiente
+# ClassControl
 ## Integrantes: 
 *24880 Oscar Rompich
 *24952 Marcela Castillo
@@ -6,14 +6,18 @@
 
 ## Descripción
 
-El principal objetivo de esta aplicación es facilitar y automatizar el proceso de toma de asistencia durante las clases.
-Para ello, se planea el uso de sensores físicos que detectan la presencia de los estudiantes y se comunican con la aplicación móvil.
-La app permitirá a los docentes registrar la asistencia de forma rápida y precisa, evitando errores manuales, mientras que los estudiantes podrán visualizar su historial de asistencias y notificaciones.
+ClassControl es una aplicación diseñada para facilitar y automatizar la toma de asistencia en las clases.
+Utiliza tags NFC para registrar la presencia de los estudiantes de forma rápida, precisa y sin intervención manual. Al acercar el dispositivo al tag, la información se sincroniza de inmediato con la aplicación móvil.
+
+La plataforma permite a los docentes gestionar la asistencia de sus cursos de manera eficiente y sin errores, mientras que los estudiantes pueden consultar su historial de asistencias y mantenerse al día con su desempeño.
 
 
 Avances para la revisión de la entrega 4: 
 
 https://youtu.be/0IVfnxlzv3M
+
+
+!!!!VIDEO DE DEMOSTRACIÓN FINAL PENDIENTE!!!!
 
 
 
