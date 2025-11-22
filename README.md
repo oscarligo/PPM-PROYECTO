@@ -9,17 +9,13 @@
 ## Descripción
 
 ClassControl es una aplicación diseñada para facilitar y automatizar la toma de asistencia en las clases.
-Utiliza tags NFC para registrar la presencia de los estudiantes de forma rápida, precisa y sin intervención manual. Al acercar el dispositivo al tag, la información se sincroniza de inmediato con la aplicación móvil.
+Utiliza tags NFC para registrar la asistencia de los estudiantes de forma rápida y sin intervención manual. Al acercar el dispositivo al tag, la información se sincroniza con la aplicación móvil.
 
-La plataforma permite a los docentes gestionar la asistencia de sus cursos de manera eficiente y sin errores, mientras que los estudiantes pueden consultar su historial de asistencias y mantenerse al día con su desempeño.
-
-
-Avances para la revisión de la entrega 4: 
-
-https://youtu.be/0IVfnxlzv3M
+La plataforma permite a los docentes gestionar la asistencia de sus cursos de manera eficiente, mientras que los estudiantes pueden consultar su historial de asistencias y mantenerse al día con su desempeño.
 
 
-!!!!VIDEO DE DEMOSTRACIÓN FINAL PENDIENTE!!!!
+
+Demostración final del funcionamiento: https://youtube.com/shorts/FVyT-n84YDI
 
 
 
@@ -37,7 +33,7 @@ app/src/main/java/com/example/ppm_proyecto
 │  ├─ local/                      // Room, caché local
 │  ├─ remote/                     // Firebase y Firestore
 │
-├─ domain/                        // Lógica de negocio
+├─ domain/                        // Capa con la lógica de negocio
 |  ├─ di/                         // Módulos de inyección de dependencias por módulo
 │  ├─ model/                      // Entidades core (Student, Professor, Tag, AttendanceRecord, Session)
 │  ├─ repository/                 // Interfaces de repositorios (AttendanceRepository, SecurityRepository, NfcRepository)
@@ -47,6 +43,6 @@ app/src/main/java/com/example/ppm_proyecto
    ├─ components/                 // Componentes UI reutilizables (botones, cards, barras)
    ├─ navigation/                 // BackStack de navegación y definición de rutas
    ├─ theme/                      // Sistema de diseño (colores, tipografías, temas)
-   └─ ui/                         // Pantallas por funcionalidad (attendance, security, nfc)
+   └─ ui/                         // Pantallas por funcionalidad (attendance, security, home)
                                   // Cada pantalla con Screen, State, Intent, ViewModel
    ```
